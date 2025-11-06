@@ -1,11 +1,13 @@
 import React from "react";
+import Header from "../components/Header";
 
-const SchedulerPage: React.FC = () => {
+const SignupPage: React.FC = () => {
   return (
-    <>
-      <div>스케줄러 페이지입니다</div>
-    </>
+    <div className="signup-page">
+      <Header />
+      <div>회원가입 페이지입니다</div>
+    </div>
   );
 };
 
-export default SchedulerPage;
+export default SignupPage;
