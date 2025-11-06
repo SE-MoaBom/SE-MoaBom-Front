@@ -126,6 +126,27 @@
   height: 28px;
 }
 
+/* 로그인 버튼 */
+.login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: #000000;
+  color: #ffffff;
+  text-decoration: none;
+  font-family: "Inter";
+  font-weight: 500;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.login-button:hover {
+  background-color: #1f2937;
+}
+
 /* Main Content */
 .main {
   width: 100%;
