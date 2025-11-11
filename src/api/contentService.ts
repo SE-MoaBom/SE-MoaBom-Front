@@ -5,10 +5,15 @@ export interface Content {
   title: string;
   image: string;
   platform: string;
-  description: string;
   releaseDate: string;
   rank?: number;
   endDate?: string;
+
+  // 모달
+  genres: string[]; // 장르 배열 (예: ["애니메이션", "액션", "판타지", "스릴러"])
+  runtime?: string; // 상영 시간 (예: "2h 35m")
+  description: string;
+  availablePlatforms: string[]; // 이용 가능한 OTT 플랫폼들 (예: ["NETFLIX", "WAVVE"])
 }
 
 export interface ApiResponse<T> {
