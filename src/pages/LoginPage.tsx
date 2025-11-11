@@ -1,16 +1,6 @@
 import React, { useState } from "react";
+import SimpleHeader from "../components/SimpleHeader";
 import "../styles/LoginPage.css";
-
-const SimpleLogoHeader = () => {
-  return (
-    <header className="simple-header">
-      <div className="logo-container">
-        <div className="logo-icon"></div>
-        <span className="logo-text">모아봄</span>
-      </div>
-    </header>
-  );
-};
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -27,7 +17,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="page-wrapper">
-      <SimpleLogoHeader />
+      <SimpleHeader />
 
       <main className="login-page-container">
         <div className="login-form-container">

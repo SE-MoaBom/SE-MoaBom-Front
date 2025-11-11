@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import moabomLogo from "../assets/moabom.svg";
 
 const Header: React.FC = () => {
   const { isLoggedIn, logout } = useAuth();
@@ -10,12 +11,7 @@ const Header: React.FC = () => {
       <div className="header-container">
         <Link to="/" className="logo-container">
           <div className="logo-icon">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <path
-                d="M16 2.66667C8.63621 2.66667 2.66667 8.63621 2.66667 16C2.66667 23.3638 8.63621 29.3333 16 29.3333C23.3638 29.3333 29.3333 23.3638 29.3333 16C29.3333 8.63621 23.3638 2.66667 16 2.66667Z"
-                fill="#000000"
-              />
-            </svg>
+            <img src={moabomLogo} width="32" height="32" />
           </div>
           <h1 className="logo-text">모아봄</h1>
         </Link>
