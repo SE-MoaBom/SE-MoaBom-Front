@@ -4,7 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import moabomLogo from "../assets/moabom.svg";
 
 const Header: React.FC = () => {
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn } = useAuth();
 
   return (
     <header className="header">

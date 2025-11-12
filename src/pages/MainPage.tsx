@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import ContentModal from "../components/ContentModal";
-import { getAllContents, type Content } from "../api/contentService";
+import { type Content } from "../api/contentService";
 import "../styles/mainPage.css";
 import { useNavigate } from "react-router-dom";
 
