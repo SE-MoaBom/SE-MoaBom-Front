@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState } from "react"; // useState는 컴포넌트 안에서 변화하는 값(상태)을 관리할 때 사용. 예를 들어 입력창의 텍스트.
 import "../styles/SignupPage.css";
 
+// '모아봄' 로고만 있는 간단한 헤더 컴포넌트
 const SimpleLogoHeader = () => {
   return (
     <header className="simple-header">
@@ -12,12 +13,18 @@ const SimpleLogoHeader = () => {
   );
 };
 
+// 회원가입 페이지 메인 컴포넌트
 const SignupPage: React.FC = () => {
+  // --- 상태 관리 ---
+  // 사용자가 입력창에 입력하는 값들을 저장하고 관리하기 위한 상태 변수
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // --- 이벤트 핸들러 ---
+  // 회원가입 폼 제출 시 호출되는 함수
   const handleSignup = (e: React.FormEvent) => {
+    // 폼 제출시 발생하는 기본 동작인 페이지 새로고침 방지
     e.preventDefault();
     if (password !== confirmPassword) {
       alert("비밀번호가 일치하지 않습니다!");
@@ -27,10 +34,15 @@ const SignupPage: React.FC = () => {
     alert("회원가입 성공!");
   };
 
+  // --- 렌더링 ---
+  // 화면에 어떻게 보일지 정의하는 부분
   return (
     <div className="page-wrapper">
+      {/* 위에서 만든 로고 헤더 컴포넌트를 표시 */}
       <SimpleLogoHeader />
+      {/* 페이지의 메인 컨텐츠 영역 */}
       <main className="signup-page-container">
+        {/* 흰색 카드 모양의 폼 영역 */}
         <div className="signup-form-container">
           <div>
             <h2 className="signup-title">회원가입</h2>
@@ -38,28 +50,35 @@ const SignupPage: React.FC = () => {
               회원이 되어 다양한 혜택을 경험해보세요!
             </p>
           </div>
+          {/* onSubmit 이벤트에 위에서 만든 handleSignup 함수를 연결 */}
           <form className="signup-form" onSubmit={handleSignup}>
+            {/* 이메일 입력 섹션 */}
             <div>
               <label htmlFor="email" className="input-label">
                 이메일
               </label>
               <input
                 id="email"
-                type="email"
-                value={email}
+                type="email" // 이메일 형식만 입력받도록 설정
+                value={email} // 입력창의 값은 email 상태 변수와 항상 동일하게 유지
+                // onChange 이벤트는 입력창의 내용이 변경될 때마다 실행
+                // e.target.value는 사용자가 입력한 최신 텍스트 값
+                // 이 값으로 setEmail 함수를 호출하여 email 상태를 업데이트
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="email@example.com"
+                placeholder="email@example.com" // 입력창에 아무것도 없을 때 보이는 안내 문구
                 required
                 className="input-field"
               />
             </div>
+
+            {/* 비밀번호 입력 섹션 */}
             <div>
               <label htmlFor="password" className="input-label">
                 비밀번호
               </label>
               <input
                 id="password"
-                type="password"
+                type="password" // 입력 내용을 점(●)으로 표시
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="비밀번호"
@@ -67,6 +86,8 @@ const SignupPage: React.FC = () => {
                 className="input-field"
               />
             </div>
+
+            {/* 비밀번호 확인 입력 섹션 */}
             <div>
               <label htmlFor="confirmPassword" className="input-label">
                 비밀번호 확인
@@ -81,12 +102,16 @@ const SignupPage: React.FC = () => {
                 className="input-field"
               />
             </div>
+
+            {/* 회원가입 버튼 */}
             <div>
               <button type="submit" className="submit-button">
                 회원가입
               </button>
             </div>
           </form>
+
+          {/* 로그인 페이지로 이동하는 링크 */}
           <p className="login-prompt">
             이미 회원이신가요?
             <a href="/login" className="login-link">
@@ -100,4 +125,5 @@ const SignupPage: React.FC = () => {
   );
 };
 
+// SignupPage 컴포넌트를 다른 파일에서도 사용할 수 있도록 내보내기
 export default SignupPage;

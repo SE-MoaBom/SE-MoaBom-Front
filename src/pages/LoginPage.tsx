@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "../styles/LoginPage.css";
 
+// '모아봄' 로고만 있는 간단한 헤더 컴포넌트
 const SimpleLogoHeader = () => {
   return (
     <header className="simple-header">
@@ -12,10 +13,13 @@ const SimpleLogoHeader = () => {
   );
 };
 
+// 회원가입 페이지 메인 컴포넌트
 const LoginPage: React.FC = () => {
+  // --- 상태 관리 ---
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // --- 이벤트 핸들러 ---
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -25,6 +29,7 @@ const LoginPage: React.FC = () => {
     alert("로그인 성공!");
   };
 
+  // --- 렌더링 ---
   return (
     <div className="page-wrapper">
       <SimpleLogoHeader />
