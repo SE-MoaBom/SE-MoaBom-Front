@@ -10,7 +10,7 @@ const SearchResultsPage: React.FC = () => {
   const navigate = useNavigate();
   const query = searchParams.get("q") || "";
 
-  const [searchResults] = useState<Content[]>([]);
+  const [searchResults, setSearchResults] = useState<Content[]>([]);
   const [selectedContent, setSelectedContent] = useState<Content | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
