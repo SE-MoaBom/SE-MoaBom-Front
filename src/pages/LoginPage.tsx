@@ -1,19 +1,7 @@
 import React, { useState } from "react";
+import SimpleHeader from "../components/SimpleHeader";
 import "../styles/LoginPage.css";
 
-// '모아봄' 로고만 있는 간단한 헤더 컴포넌트
-const SimpleLogoHeader = () => {
-  return (
-    <header className="simple-header">
-      <div className="logo-container">
-        <div className="logo-icon"></div>
-        <span className="logo-text">모아봄</span>
-      </div>
-    </header>
-  );
-};
-
-// 회원가입 페이지 메인 컴포넌트
 const LoginPage: React.FC = () => {
   // --- 상태 관리 ---
   const [email, setEmail] = useState("");
@@ -32,7 +20,7 @@ const LoginPage: React.FC = () => {
   // --- 렌더링 ---
   return (
     <div className="page-wrapper">
-      <SimpleLogoHeader />
+      <SimpleHeader />
 
       <main className="login-page-container">
         <div className="login-form-container">

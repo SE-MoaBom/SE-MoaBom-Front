@@ -1,0 +1,256 @@
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+/* Modal Container */
+.modal-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 32px;
+  max-width: 896px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: rgba(247, 247, 247, 0.95);
+  box-shadow: 0px 25px 50px -12px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  position: relative;
+}
+
+/* Close Button */
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #111827;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.modal-close:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Content Container */
+.modal-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 32px;
+  width: 100%;
+}
+
+/* Poster Container */
+.modal-poster-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex-shrink: 0;
+  width: 240px;
+}
+
+.modal-poster {
+  width: 240px;
+  height: 360px;
+  background-size: cover;
+  background-position: center;
+  background-color: #cbd5e0;
+  box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Info Container */
+.modal-info-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Title */
+.modal-title {
+  font-family: "Inter";
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 36px;
+  color: #111827;
+  margin: 0;
+}
+
+/* Meta Info */
+.modal-meta {
+  font-family: "Inter";
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: #4b5563;
+}
+
+/* Description */
+.modal-description {
+  font-family: "Inter";
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 24px;
+  color: #374151;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.modal-description::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-description::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+/* Platforms Section */
+.modal-platforms-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  width: 100%;
+}
+
+.modal-platforms-title {
+  font-family: "Inter";
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+  color: #111827;
+  margin: 0;
+}
+
+.modal-platforms-list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.modal-platform-logo {
+  width: 70px;
+  height: 35px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Inter";
+  font-weight: 700;
+  font-size: 12px;
+  color: #ffffff;
+}
+
+.modal-platform-logo.netflix {
+  background-color: #e50914;
+}
+
+.modal-platform-logo.wavve {
+  background-color: #1351f9;
+}
+
+.modal-platform-logo.disney {
+  background-color: #113ccf;
+}
+
+/* Action Button */
+.modal-action-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-top: 20px;
+  width: 100%;
+}
+
+.modal-add-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 24px;
+  gap: 8px;
+  background: #000000;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.modal-add-button:hover {
+  background-color: #1f2937;
+}
+
+.modal-add-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.modal-add-button-text {
+  font-family: "Inter";
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+  color: #ffffff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal-container {
+    padding: 24px;
+  }
+
+  .modal-content {
+    flex-direction: column;
+  }
+
+  .modal-poster-container {
+    width: 100%;
+    align-items: center;
+  }
+
+  .modal-poster {
+    width: 200px;
+    height: 300px;
+  }
+
+  .modal-title {
+    font-size: 24px;
+    line-height: 32px;
+  }
+}

@@ -1,19 +1,7 @@
-import React, { useState } from "react"; // useState는 컴포넌트 안에서 변화하는 값(상태)을 관리할 때 사용. 예를 들어 입력창의 텍스트.
+import React, { useState } from "react";
+import SimpleHeader from "../components/SimpleHeader";
 import "../styles/SignupPage.css";
 
-// '모아봄' 로고만 있는 간단한 헤더 컴포넌트
-const SimpleLogoHeader = () => {
-  return (
-    <header className="simple-header">
-      <div className="logo-container">
-        <div className="logo-icon"></div>
-        <span className="logo-text">모아봄</span>
-      </div>
-    </header>
-  );
-};
-
-// 회원가입 페이지 메인 컴포넌트
 const SignupPage: React.FC = () => {
   // --- 상태 관리 ---
   // 사용자가 입력창에 입력하는 값들을 저장하고 관리하기 위한 상태 변수
@@ -38,9 +26,7 @@ const SignupPage: React.FC = () => {
   // 화면에 어떻게 보일지 정의하는 부분
   return (
     <div className="page-wrapper">
-      {/* 위에서 만든 로고 헤더 컴포넌트를 표시 */}
-      <SimpleLogoHeader />
-      {/* 페이지의 메인 컨텐츠 영역 */}
+      <SimpleHeader />
       <main className="signup-page-container">
         {/* 흰색 카드 모양의 폼 영역 */}
         <div className="signup-form-container">
