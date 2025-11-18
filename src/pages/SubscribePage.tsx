@@ -78,6 +78,8 @@ const SubscribePage: React.FC = () => {
 
   // 구독 추가
   const handleAddSubscription = async () => {
+    console.log(localStorage.getItem("token"));
+
     if (newSubscription.ottId === 0) {
       setError("OTT를 선택해주세요.");
       return;

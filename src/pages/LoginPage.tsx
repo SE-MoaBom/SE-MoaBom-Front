@@ -54,7 +54,18 @@ const LoginPage: React.FC = () => {
       // AuthContext 업데이트
       login({ name: email.split("@")[0], email });
 
-      navigate("/");
+      // 신규 사용자인지 확인
+      const isNewUser = localStorage.getItem("isNewUser") === "true";
+
+      if (isNewUser) {
+        // 플래그 제거 (한 번만 실행)
+        localStorage.removeItem("isNewUser");
+        // 구독 페이지로 이동
+        navigate("/subscribe", { state: { isFirstLogin: true } });
+      } else {
+        // 기존 사용자는 메인 페이지로 이동
+        navigate("/");
+      }
     } catch (err: any) {
       if (err.response) {
         // 서버 응답이 있는 경우

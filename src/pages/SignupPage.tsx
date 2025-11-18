@@ -62,6 +62,10 @@ const SignupPage: React.FC = () => {
         email,
         password,
       });
+
+      // 첫 로그인 플래그 저장
+      localStorage.setItem("isNewUser", "true");
+
       alert("회원가입이 완료되었습니다! 로그인 후 구독 정보를 등록해주세요.");
       navigate("/login");
     } catch (err: any) {
