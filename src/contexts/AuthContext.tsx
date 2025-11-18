@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import apiClient from "../api/client";
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -17,6 +18,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [user, setUser] = useState<{ name: string; email: string } | null>(
     null
   );
+
+  // 앱 시작 시 토큰 확인
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      // 토큰이 있으면 사용자 정보 가져오기
+      apiClient
+        .get("/users/me")
+        .then((response) => {
+          setIsLoggedIn(true);
+          setUser({
+            name: response.data.email.split("@")[0],
+            email: response.data.email,
+          });
+        })
+        .catch(() => {
+          localStorage.removeItem("token");
+        });
+    }
+  }, []);
 
   const login = (userData: { name: string; email: string }) => {
     setIsLoggedIn(true);

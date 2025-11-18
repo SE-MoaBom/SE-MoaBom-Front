@@ -1,25 +1,38 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import apiClient from "../api/client";
 import SimpleHeader from "../components/SimpleHeader";
 import "../styles/SignupPage.css";
 
 const SignupPage: React.FC = () => {
-  // --- 상태 관리 ---
-  // 사용자가 입력창에 입력하는 값들을 저장하고 관리하기 위한 상태 변수
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
 
-  // --- 이벤트 핸들러 ---
-  // 회원가입 폼 제출 시 호출되는 함수
-  const handleSignup = (e: React.FormEvent) => {
-    // 폼 제출시 발생하는 기본 동작인 페이지 새로고침 방지
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (password !== confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다!");
+      setError("비밀번호가 일치하지 않습니다!");
       return;
     }
-    console.log("회원가입 시도:", { email, password });
-    alert("회원가입 성공!");
+
+    try {
+      await apiClient.post("/auth/signup", {
+        email,
+        password,
+      });
+      alert("회원가입 성공!");
+      navigate("/login");
+    } catch (err: any) {
+      if (err.response?.status === 400) {
+        setError(err.response.data.message || "이미 사용중인 이메일입니다.");
+      } else {
+        setError("회원가입 중 오류가 발생했습니다.");
+      }
+    }
   };
 
   // --- 렌더링 ---

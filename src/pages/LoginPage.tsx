@@ -1,22 +1,43 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import apiClient from "../api/client";
 import SimpleHeader from "../components/SimpleHeader";
 import "../styles/LoginPage.css";
 
 const LoginPage: React.FC = () => {
-  // --- 상태 관리 ---
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  // --- 이벤트 핸들러 ---
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("로그인 시도:");
-    console.log("이메일:", email);
-    console.log("비밀번호:", password);
-    alert("로그인 성공!");
-  };
+    try {
+      const response = await apiClient.post("/auth/login", {
+        email,
+        password,
+      });
 
+      const { token } = response.data;
+      localStorage.setItem("token", token);
+
+      // AuthContext 업데이트
+      login({ name: email.split("@")[0], email });
+
+      navigate("/");
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        setError(
+          err.response.data.error || "이메일 또는 비밀번호가 올바르지 않습니다."
+        );
+      } else {
+        setError("로그인 중 오류가 발생했습니다.");
+      }
+    }
+  };
   // --- 렌더링 ---
   return (
     <div className="page-wrapper">

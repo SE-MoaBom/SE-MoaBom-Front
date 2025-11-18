@@ -5,8 +5,14 @@ export interface Content {
   title: string;
   image: string;
   platform: string;
-  releaseDate: string;
+
+  // 인기작
   rank?: number;
+
+  // 공개작
+  releaseDate?: string;
+
+  // 종료작
   endDate?: string;
 
   // 모달
