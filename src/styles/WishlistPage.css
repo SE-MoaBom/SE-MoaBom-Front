@@ -1,0 +1,106 @@
+/* 페이지 전체 레이아웃 */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+/* 찜한 리스트 컨텐츠를 담는 main 영역 */
+.wishlist-container {
+  flex-grow: 1;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* "내가 찜한 리스트" 제목 */
+.wishlist-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+/* 찜한 아이템들을 감싸는 리스트 */
+.wishlist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* 찜한 아이템 하나하나의 스타일 */
+.wishlist-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* 아이템의 왼쪽 부분 (포스터 + 정보) */
+.item-details {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* 포스터 이미지 */
+.item-poster {
+  width: 60px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 제목과 플랫폼 정보 */
+.item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.item-platform {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* 삭제 버튼 */
+.delete-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  padding: 0.5rem;
+}
+
+.delete-button:hover {
+  color: #ef4444;
+}
+
+/* 하단 추천받기 버튼 컨테이너 */
+.recommend-button-container {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+/* 추천받기 버튼 */
+.recommend-button {
+  background-color: #111827;
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.recommend-button:hover {
+  background-color: #374151;
+}

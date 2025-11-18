@@ -4,6 +4,7 @@ import ContentModal from "../components/ContentModal";
 import { type Content } from "../api/contentService";
 import "../styles/mainPage.css";
 import { useNavigate } from "react-router-dom";
+import { useWishlist } from "../contexts/WishlistContext"; // useWishlist 훅 불러오기
 
 type ContentTab = "popular" | "upcoming" | "ending";
 
@@ -172,6 +173,7 @@ const MainPage: React.FC = () => {
     ],
   };
 
+  const { addToWishlist } = useWishlist(); // useWishlist 훅을 호출하여 addToWishlist 함수 가져오기
   const [activeTab, setActiveTab] = useState<ContentTab>("popular");
   const [heroIndex, setHeroIndex] = useState(0);
   const [popularShows, setPopularShows] = useState<Content[]>([]);
@@ -542,7 +544,11 @@ const MainPage: React.FC = () => {
                     </div>
                     <h4 className="content-title">{show.title}</h4>
                     <div className="content-date">{show.releaseDate}</div>
-                    <button className="add-button">
+                    {/* 버튼에 onClick 이벤트를 추가하고, addToWishlist 함수 연결 */}
+                    <button
+                      className="add-button"
+                      onClick={() => addToWishlist(show)}
+                    >
                       <svg
                         width="16"
                         height="20"
@@ -592,7 +598,11 @@ const MainPage: React.FC = () => {
                     </div>
                     <h4 className="content-title">{show.title}</h4>
                     <div className="content-date">{show.releaseDate}</div>
-                    <button className="add-button">
+                    {/* 버튼에 onClick 이벤트를 추가하고, addToWishlist 함수 연결 */}
+                    <button
+                      className="add-button"
+                      onClick={() => addToWishlist(show)}
+                    >
                       <svg
                         width="16"
                         height="20"
@@ -621,6 +631,7 @@ const MainPage: React.FC = () => {
           content={selectedContent}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
+          onAddToWishlist={addToWishlist} // 모달에도 addToWishlist 함수를 prop으로 전달
         />
       )}
     </div>

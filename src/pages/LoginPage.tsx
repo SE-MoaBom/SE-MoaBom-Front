@@ -3,9 +3,11 @@ import SimpleHeader from "../components/SimpleHeader";
 import "../styles/LoginPage.css";
 
 const LoginPage: React.FC = () => {
+  // --- 상태 관리 ---
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // --- 이벤트 핸들러 ---
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -15,6 +17,7 @@ const LoginPage: React.FC = () => {
     alert("로그인 성공!");
   };
 
+  // --- 렌더링 ---
   return (
     <div className="page-wrapper">
       <SimpleHeader />

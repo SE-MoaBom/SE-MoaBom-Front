@@ -2,16 +2,19 @@ import React from "react";
 import { type Content } from "../api/contentService";
 import "../styles/contentModal.css";
 
+// props 타입 정의에 onAddToWishlist 추가
 interface ContentModalProps {
   content: Content;
   isOpen: boolean;
   onClose: () => void;
+  onAddToWishlist: (content: Content) => void; // 찜 목록에 추가하는 함수
 }
 
 const ContentModal: React.FC<ContentModalProps> = ({
   content,
   isOpen,
   onClose,
+  onAddToWishlist, // props로부터 onAddToWishlist 함수 받기
 }) => {
   if (!isOpen) return null;
 
@@ -41,6 +44,12 @@ const ContentModal: React.FC<ContentModalProps> = ({
       parts.push(content.genres.join(", "));
     if (content.runtime) parts.push(content.runtime);
     return parts.join(" · ");
+  };
+
+  // 추가 버튼 클릭 시 실행될 핸들러 함수
+  const handleAddClick = () => {
+    onAddToWishlist(content); // Context의 함수를 호출하여 아이템 추가
+    onClose(); // 아이템을 추가한 후 모달 닫기
   };
 
   return (
@@ -108,7 +117,8 @@ const ContentModal: React.FC<ContentModalProps> = ({
 
             {/* Action Button */}
             <div className="modal-action-section">
-              <button className="modal-add-button">
+              {/* 버튼에 onClick 이벤트 연결 */}
+              <button className="modal-add-button" onClick={handleAddClick}>
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                   <path
                     d="M10 4V16M4 10H16"
