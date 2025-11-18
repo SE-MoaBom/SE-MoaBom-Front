@@ -42,8 +42,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const login = (userData: { name: string; email: string }) => {
     setIsLoggedIn(true);
     setUser(userData);
-    // TODO: 실제로는 토큰을 localStorage에 저장
-    localStorage.setItem("token", "your-jwt-token");
   };
 
   const logout = () => {
