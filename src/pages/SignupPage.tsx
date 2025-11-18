@@ -10,38 +10,96 @@ const SignupPage: React.FC = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 이메일 형식 검증
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // 비밀번호 강도 검증
+  const validatePassword = (password: string): string | null => {
+    if (password.length < 8) {
+      return "비밀번호는 8자 이상이어야 합니다.";
+    }
+    if (!/[a-zA-Z]/.test(password)) {
+      return "비밀번호에 영문자를 포함해야 합니다.";
+    }
+    if (!/[0-9]/.test(password)) {
+      return "비밀번호에 숫자를 포함해야 합니다.";
+    }
+    return null;
+  };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
-    if (password !== confirmPassword) {
-      setError("비밀번호가 일치하지 않습니다!");
+    // 이메일 형식 검증
+    if (!validateEmail(email)) {
+      setError("올바른 이메일 형식을 입력해주세요.");
       return;
     }
 
+    // 비밀번호 강도 검증
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
+    // 비밀번호 확인
+    if (password !== confirmPassword) {
+      setError("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
+      // 회원가입 후 로그인하여 토큰 받기
       await apiClient.post("/auth/signup", {
         email,
         password,
       });
-      alert("회원가입 성공!");
-      navigate("/login");
+
+      // 바로 로그인하여 토큰 획득
+      const loginResponse = await apiClient.post("/auth/login", {
+        email,
+        password,
+      });
+
+      const { token } = loginResponse.data;
+
+      // OTT 선택 페이지로 이동 (토큰 전달)
+      navigate("/signup/ott", { state: { token } });
     } catch (err: any) {
-      if (err.response?.status === 400) {
-        setError(err.response.data.message || "이미 사용중인 이메일입니다.");
+      if (err.response) {
+        // 서버 응답이 있는 경우
+        const status = err.response.status;
+        if (status === 400) {
+          setError(err.response.data.message || "이미 사용중인 이메일입니다.");
+        } else if (status === 500) {
+          setError("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        } else {
+          setError("회원가입 중 오류가 발생했습니다.");
+        }
+      } else if (err.request) {
+        // 네트워크 에러 (서버 응답 없음)
+        setError("서버에 연결할 수 없습니다. 네트워크를 확인해주세요.");
       } else {
-        setError("회원가입 중 오류가 발생했습니다.");
+        setError("알 수 없는 오류가 발생했습니다.");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // --- 렌더링 ---
-  // 화면에 어떻게 보일지 정의하는 부분
   return (
     <div className="page-wrapper">
       <SimpleHeader />
       <main className="signup-page-container">
-        {/* 흰색 카드 모양의 폼 영역 */}
         <div className="signup-form-container">
           <div>
             <h2 className="signup-title">회원가입</h2>
@@ -49,44 +107,38 @@ const SignupPage: React.FC = () => {
               회원이 되어 다양한 혜택을 경험해보세요!
             </p>
           </div>
-          {/* onSubmit 이벤트에 위에서 만든 handleSignup 함수를 연결 */}
+
           <form className="signup-form" onSubmit={handleSignup}>
-            {/* 이메일 입력 섹션 */}
             <div>
               <label htmlFor="email" className="input-label">
                 이메일
               </label>
               <input
                 id="email"
-                type="email" // 이메일 형식만 입력받도록 설정
-                value={email} // 입력창의 값은 email 상태 변수와 항상 동일하게 유지
-                // onChange 이벤트는 입력창의 내용이 변경될 때마다 실행
-                // e.target.value는 사용자가 입력한 최신 텍스트 값
-                // 이 값으로 setEmail 함수를 호출하여 email 상태를 업데이트
+                type="email"
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="email@example.com" // 입력창에 아무것도 없을 때 보이는 안내 문구
+                placeholder="email@example.com"
                 required
                 className="input-field"
               />
             </div>
 
-            {/* 비밀번호 입력 섹션 */}
             <div>
               <label htmlFor="password" className="input-label">
                 비밀번호
               </label>
               <input
                 id="password"
-                type="password" // 입력 내용을 점(●)으로 표시
+                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="비밀번호"
+                placeholder="8자 이상, 영문+숫자"
                 required
                 className="input-field"
               />
             </div>
 
-            {/* 비밀번호 확인 입력 섹션 */}
             <div>
               <label htmlFor="confirmPassword" className="input-label">
                 비밀번호 확인
@@ -102,15 +154,20 @@ const SignupPage: React.FC = () => {
               />
             </div>
 
-            {/* 회원가입 버튼 */}
+            {/* 에러 메시지 표시 */}
+            {error && <p className="error-message">{error}</p>}
+
             <div>
-              <button type="submit" className="submit-button">
-                회원가입
+              <button
+                type="submit"
+                className="submit-button"
+                disabled={isLoading}
+              >
+                {isLoading ? "처리 중..." : "회원가입"}
               </button>
             </div>
           </form>
 
-          {/* 로그인 페이지로 이동하는 링크 */}
           <p className="login-prompt">
             이미 회원이신가요?
             <a href="/login" className="login-link">
@@ -124,5 +181,4 @@ const SignupPage: React.FC = () => {
   );
 };
 
-// SignupPage 컴포넌트를 다른 파일에서도 사용할 수 있도록 내보내기
 export default SignupPage;

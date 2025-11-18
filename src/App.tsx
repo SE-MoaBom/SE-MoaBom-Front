@@ -4,6 +4,7 @@ import MainPage from "./pages/MainPage";
 import SearchResultsPage from "./pages/SearchResults";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import SignupOttPage from "./pages/SignupOttPage";
 import ProfilePage from "./pages/ProfilePage";
 import SchedulerPage from "./pages/SchedulerPage";
 import SubscribePage from "./pages/SubscribePage";
@@ -18,6 +19,7 @@ function App() {
           <Route path="/search" element={<SearchResultsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/signup/ott" element={<SignupOttPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/scheduler" element={<SchedulerPage />} />
           <Route path="/subscribe" element={<SubscribePage />} />
