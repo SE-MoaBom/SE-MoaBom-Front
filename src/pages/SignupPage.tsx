@@ -58,25 +58,14 @@ const SignupPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // 회원가입 후 로그인하여 토큰 받기
       await apiClient.post("/auth/signup", {
         email,
         password,
       });
-
-      // 바로 로그인하여 토큰 획득
-      const loginResponse = await apiClient.post("/auth/login", {
-        email,
-        password,
-      });
-
-      const { token } = loginResponse.data;
-
-      // OTT 선택 페이지로 이동 (토큰 전달)
-      navigate("/signup/ott", { state: { token } });
+      alert("회원가입이 완료되었습니다! 로그인 후 구독 정보를 등록해주세요.");
+      navigate("/login");
     } catch (err: any) {
       if (err.response) {
-        // 서버 응답이 있는 경우
         const status = err.response.status;
         if (status === 400) {
           setError(err.response.data.message || "이미 사용중인 이메일입니다.");
@@ -86,7 +75,6 @@ const SignupPage: React.FC = () => {
           setError("회원가입 중 오류가 발생했습니다.");
         }
       } else if (err.request) {
-        // 네트워크 에러 (서버 응답 없음)
         setError("서버에 연결할 수 없습니다. 네트워크를 확인해주세요.");
       } else {
         setError("알 수 없는 오류가 발생했습니다.");
@@ -154,7 +142,6 @@ const SignupPage: React.FC = () => {
               />
             </div>
 
-            {/* 에러 메시지 표시 */}
             {error && <p className="error-message">{error}</p>}
 
             <div>
