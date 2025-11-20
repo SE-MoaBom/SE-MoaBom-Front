@@ -311,11 +311,17 @@ const SubscribePage: React.FC = () => {
 
         {/* 구독 추가 모달 */}
         {showAddModal && (
-          <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <h2 className="modal-title">구독 추가</h2>
+          <div
+            className="subscribe-modal-overlay"
+            onClick={() => setShowAddModal(false)}
+          >
+            <div
+              className="subscribe-modal-content"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="subscribe-modal-title">구독 추가</h2>
 
-              <div className="modal-form">
+              <div className="subscribe-modal-form">
                 <div className="form-group">
                   <label>OTT 선택</label>
                   <select

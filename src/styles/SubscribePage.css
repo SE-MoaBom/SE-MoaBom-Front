@@ -234,7 +234,7 @@
 }
 
 /* 모달 스타일 */
-.modal-overlay {
+.subscribe-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -247,7 +247,7 @@
   z-index: 1000;
 }
 
-.modal-content {
+.subscribe-modal-content {
   background-color: white;
   padding: 2rem;
   border-radius: 0.75rem;
@@ -256,7 +256,7 @@
   box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
 }
 
-.modal-title {
+.subscribe-modal-title {
   font-size: 1.5rem;
   font-weight: 700;
   color: #111827;
@@ -264,7 +264,7 @@
   text-align: center;
 }
 
-.modal-form {
+.subscribe-modal-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;

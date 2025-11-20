@@ -1,220 +1,381 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import ContentModal from "../components/ContentModal";
-import { type Content } from "../api/contentService";
 import "../styles/mainPage.css";
 import { useNavigate } from "react-router-dom";
-import { useWishlist } from "../contexts/WishlistContext"; // useWishlist 훅 불러오기
+import { useWishlist } from "../contexts/WishlistContext";
 
 type ContentTab = "popular" | "upcoming" | "ending";
 
-const MainPage: React.FC = () => {
-  const DEMO_DATA = {
-    popular: [
-      {
-        id: 1,
-        title: "더 글로리",
-        releaseDate: "현재 방영중",
-        image: "",
-        platform: "NETFLIX",
-        rank: 1,
-        description: "asdfsdf",
-        genres: ["애니메이션", "액션", "판타지", "스릴러"],
-        availablePlatforms: ["NETFLIX"],
-      },
-      {
-        id: 2,
-        title: "피지컬: 100",
-        releaseDate: "현재 방영중",
-        image: "",
-        platform: "NETFLIX",
-        rank: 2,
-        description: "as23123f",
-        genres: ["애니메이션", "액션", "판타지", "스릴러"],
-        availablePlatforms: ["NETFLIX"],
-      },
-      {
-        id: 3,
-        title: "환승연애3",
-        releaseDate: "현재 방영중",
-        image: "",
-        platform: "WAVVE",
-        rank: 1,
-        description: "ass1231231",
-        genres: ["애니메이션", "액션", "판타지", "스릴러"],
-        availablePlatforms: ["NETFLIX"],
-      },
-      {
-        id: 4,
-        title: "이재, 곧 죽습니다",
-        releaseDate: "현재 방영중",
-        image: "",
-        platform: "NETFLIX",
-        rank: 3,
-        description: "14121241",
-        genres: ["애니메이션", "액션", "판타지", "스릴러"],
-        availablePlatforms: ["NETFLIX"],
-      },
-      {
-        id: 5,
-        title: "오징어 게임 시즌2",
-        releaseDate: "현재 방영중",
-        image: "",
-        platform: "NETFLIX",
-        rank: 4,
-        description: "asdfsdf",
-        genres: ["애니메이션", "액션", "판타지", "스릴러"],
-        availablePlatforms: ["NETFLIX"],
-      },
-    ],
-    upcoming: [
-      {
-        id: 6,
-        title: "킹덤 시즌3",
-        releaseDate: "2025.04.15",
-        image: "",
-        platform: "NETFLIX",
-        description: "asdfsdf",
-        genres: ["애니메이션", "액션", "판타지", "스릴러"],
-        availablePlatforms: ["NETFLIX"],
-      },
-      {
-        id: 7,
-        title: "수리남 시즌2",
-        releaseDate: "2025.05.20",
-        image: "",
-        platform: "NETFLIX",
-        description: "asdfsdf",
-        genres: ["애니메이션", "액션", "판타지", "스릴러"],
-        availablePlatforms: ["NETFLIX"],
-      },
-      {
-        id: 8,
-        title: "무빙 시즌2",
-        releaseDate: "2025.06.10",
-        image: "",
-        platform: "DISNEY_PLUS",
-        description: "asdfsdf",
-        genres: ["애니메이션", "액션", "판타지", "스릴러"],
-        availablePlatforms: ["NETFLIX"],
-      },
-      {
-        id: 9,
-        title: "카지노",
-        releaseDate: "2025.04.25",
-        image: "",
-        platform: "WAVVE",
-        description: "asdfsdf",
-        genres: ["애니메이션", "액션", "판타지", "스릴러"],
-        availablePlatforms: ["NETFLIX"],
-      },
-      {
-        id: 10,
-        title: "재벌집 막내아들 시즌2",
-        releaseDate: "2025.07.01",
-        image: "",
-        platform: "WAVVE",
-        description: "asdfsdf",
-        genres: ["애니메이션", "액션", "판타지", "스릴러"],
-        availablePlatforms: ["NETFLIX"],
-      },
-    ],
-    ending: [
-      {
-        id: 11,
-        title: "스위트홈 시즌3",
-        releaseDate: "2025.12.15",
-        image: "",
-        platform: "NETFLIX",
-        description: "asdfsdf",
-        genres: ["애니메이션", "액션", "판타지", "스릴러"],
-        availablePlatforms: ["NETFLIX"],
-      },
-      {
-        id: 12,
-        title: "이상한 변호사 우영우",
-        releaseDate: "2025.12.20",
-        image: "",
-        platform: "NETFLIX",
-        description: "asdfsdf",
-        genres: ["애니메이션", "액션", "판타지", "스릴러"],
-        availablePlatforms: ["NETFLIX"],
-      },
-      {
-        id: 13,
-        title: "술꾼도시여자들 시즌2",
-        releaseDate: "2025.12.10",
-        image: "",
-        platform: "WAVVE",
-        description: "asdfsdf",
-        genres: ["애니메이션", "액션", "판타지", "스릴러"],
-        availablePlatforms: ["NETFLIX"],
-      },
-      {
-        id: 14,
-        title: "D.P. 시즌2",
-        releaseDate: "2025.11.30",
-        image: "",
-        platform: "NETFLIX",
-        description: "asdfsdf",
-        genres: ["애니메이션", "액션", "판타지", "스릴러"],
-        availablePlatforms: ["NETFLIX"],
-      },
-      {
-        id: 15,
-        title: "나의 해방일지",
-        releaseDate: "2025.12.05",
-        image: "",
-        platform: "NETFLIX",
-        description: "asdfsdf",
-        genres: ["애니메이션", "액션", "판타지", "스릴러"],
-        availablePlatforms: ["NETFLIX"],
-      },
-    ],
-  };
+// API 응답 형식에 맞는 타입 정의
+interface ProgramAvailability {
+  ottId: number;
+  logoUrl: string;
+  releaseDate: string | null;
+  expireDate: string | null;
+}
 
-  const { addToWishlist } = useWishlist(); // useWishlist 훅을 호출하여 addToWishlist 함수 가져오기
+interface Program {
+  programId: number;
+  title: string;
+  description: string;
+  thumbnailUrl: string;
+  backdropUrl: string;
+  genre: string;
+  runningTime: number | null;
+  ranking: number | null;
+  status: "UPCOMING" | "EXPIRING" | null;
+  availability: ProgramAvailability[];
+  wishlistId: number | null;
+}
+
+const MainPage: React.FC = () => {
+  // DEMO 데이터 - API 응답 형식에 맞춤
+  const DEMO_DATA: Program[] = [
+    // 인기작 (ranking 있음)
+    {
+      programId: 1,
+      title: "더 글로리",
+      description:
+        "학교 폭력의 피해자가 18년간 치밀하게 준비한 복수극을 그린 드라마",
+      thumbnailUrl: "",
+      backdropUrl: "",
+      genre: "Drama",
+      runningTime: 50,
+      ranking: 1,
+      status: null,
+      availability: [
+        {
+          ottId: 1,
+          logoUrl: "https://example.com/netflix_logo.png",
+          releaseDate: null,
+          expireDate: null,
+        },
+      ],
+      wishlistId: null,
+    },
+    {
+      programId: 2,
+      title: "피지컬: 100",
+      description: "100명의 참가자가 최고의 신체 능력을 겨루는 서바이벌 예능",
+      thumbnailUrl: "",
+      backdropUrl: "",
+      genre: "Reality",
+      runningTime: 60,
+      ranking: 2,
+      status: null,
+      availability: [
+        {
+          ottId: 1,
+          logoUrl: "https://example.com/netflix_logo.png",
+          releaseDate: null,
+          expireDate: null,
+        },
+      ],
+      wishlistId: null,
+    },
+    {
+      programId: 3,
+      title: "환승연애3",
+      description: "헤어진 연인들이 새로운 사랑을 찾아가는 연애 리얼리티",
+      thumbnailUrl: "",
+      backdropUrl: "",
+      genre: "Reality",
+      runningTime: 70,
+      ranking: 1,
+      status: null,
+      availability: [
+        {
+          ottId: 2,
+          logoUrl: "https://example.com/wavve_logo.png",
+          releaseDate: null,
+          expireDate: null,
+        },
+      ],
+      wishlistId: null,
+    },
+    {
+      programId: 4,
+      title: "이재, 곧 죽습니다",
+      description:
+        "죽음을 앞둔 재벌 3세가 자신의 삶을 되돌아보는 판타지 드라마",
+      thumbnailUrl: "",
+      backdropUrl: "",
+      genre: "Fantasy",
+      runningTime: 55,
+      ranking: 3,
+      status: null,
+      availability: [
+        {
+          ottId: 1,
+          logoUrl: "https://example.com/netflix_logo.png",
+          releaseDate: null,
+          expireDate: null,
+        },
+      ],
+      wishlistId: null,
+    },
+    {
+      programId: 5,
+      title: "오징어 게임 시즌2",
+      description: "456억 원의 상금을 건 서바이벌 게임의 두 번째 시즌",
+      thumbnailUrl: "",
+      backdropUrl: "",
+      genre: "Thriller",
+      runningTime: 60,
+      ranking: 4,
+      status: null,
+      availability: [
+        {
+          ottId: 1,
+          logoUrl: "https://example.com/netflix_logo.png",
+          releaseDate: null,
+          expireDate: null,
+        },
+      ],
+      wishlistId: null,
+    },
+    // 공개 예정작 (status: UPCOMING)
+    {
+      programId: 6,
+      title: "킹덤 시즌3",
+      description: "조선시대 좀비 사극의 세 번째 시즌",
+      thumbnailUrl: "",
+      backdropUrl: "",
+      genre: "Horror",
+      runningTime: 50,
+      ranking: null,
+      status: "UPCOMING",
+      availability: [
+        {
+          ottId: 1,
+          logoUrl: "https://example.com/netflix_logo.png",
+          releaseDate: "2025-04-15",
+          expireDate: null,
+        },
+      ],
+      wishlistId: null,
+    },
+    {
+      programId: 7,
+      title: "수리남 시즌2",
+      description: "남미 마약 조직에 잠입한 사업가의 실화 기반 드라마",
+      thumbnailUrl: "",
+      backdropUrl: "",
+      genre: "Crime",
+      runningTime: 55,
+      ranking: null,
+      status: "UPCOMING",
+      availability: [
+        {
+          ottId: 1,
+          logoUrl: "https://example.com/netflix_logo.png",
+          releaseDate: "2025-05-20",
+          expireDate: null,
+        },
+      ],
+      wishlistId: null,
+    },
+    {
+      programId: 8,
+      title: "무빙 시즌2",
+      description: "초능력을 숨기고 살아가는 가족들의 이야기",
+      thumbnailUrl: "",
+      backdropUrl: "",
+      genre: "Action",
+      runningTime: 60,
+      ranking: null,
+      status: "UPCOMING",
+      availability: [
+        {
+          ottId: 3,
+          logoUrl: "https://example.com/disney_logo.png",
+          releaseDate: "2025-06-10",
+          expireDate: null,
+        },
+      ],
+      wishlistId: null,
+    },
+    {
+      programId: 9,
+      title: "카지노",
+      description: "필리핀 카지노를 배경으로 한 범죄 스릴러",
+      thumbnailUrl: "",
+      backdropUrl: "",
+      genre: "Crime",
+      runningTime: 50,
+      ranking: null,
+      status: "UPCOMING",
+      availability: [
+        {
+          ottId: 2,
+          logoUrl: "https://example.com/wavve_logo.png",
+          releaseDate: "2025-04-25",
+          expireDate: null,
+        },
+      ],
+      wishlistId: null,
+    },
+    {
+      programId: 10,
+      title: "재벌집 막내아들 시즌2",
+      description: "재벌가에 빙의한 남자의 복수극 두 번째 시즌",
+      thumbnailUrl: "",
+      backdropUrl: "",
+      genre: "Fantasy",
+      runningTime: 55,
+      ranking: null,
+      status: "UPCOMING",
+      availability: [
+        {
+          ottId: 2,
+          logoUrl: "https://example.com/wavve_logo.png",
+          releaseDate: "2025-07-01",
+          expireDate: null,
+        },
+      ],
+      wishlistId: null,
+    },
+    // 종료 예정작 (status: EXPIRING)
+    {
+      programId: 11,
+      title: "스위트홈 시즌3",
+      description: "괴물로 변해가는 세상에서 살아남기 위한 사투",
+      thumbnailUrl: "",
+      backdropUrl: "",
+      genre: "Horror",
+      runningTime: 50,
+      ranking: null,
+      status: "EXPIRING",
+      availability: [
+        {
+          ottId: 1,
+          logoUrl: "https://example.com/netflix_logo.png",
+          releaseDate: null,
+          expireDate: "2025-12-15",
+        },
+      ],
+      wishlistId: null,
+    },
+    {
+      programId: 12,
+      title: "이상한 변호사 우영우",
+      description: "자폐 스펙트럼을 가진 천재 변호사의 성장 드라마",
+      thumbnailUrl: "",
+      backdropUrl: "",
+      genre: "Drama",
+      runningTime: 60,
+      ranking: null,
+      status: "EXPIRING",
+      availability: [
+        {
+          ottId: 1,
+          logoUrl: "https://example.com/netflix_logo.png",
+          releaseDate: null,
+          expireDate: "2025-12-20",
+        },
+      ],
+      wishlistId: null,
+    },
+    {
+      programId: 13,
+      title: "술꾼도시여자들 시즌2",
+      description: "서울에서 살아가는 세 여자의 우정과 사랑",
+      thumbnailUrl: "",
+      backdropUrl: "",
+      genre: "Comedy",
+      runningTime: 45,
+      ranking: null,
+      status: "EXPIRING",
+      availability: [
+        {
+          ottId: 2,
+          logoUrl: "https://example.com/wavve_logo.png",
+          releaseDate: null,
+          expireDate: "2025-12-10",
+        },
+      ],
+      wishlistId: null,
+    },
+    {
+      programId: 14,
+      title: "D.P. 시즌2",
+      description: "군 탈영병을 추적하는 헌병대원들의 이야기",
+      thumbnailUrl: "",
+      backdropUrl: "",
+      genre: "Drama",
+      runningTime: 50,
+      ranking: null,
+      status: "EXPIRING",
+      availability: [
+        {
+          ottId: 1,
+          logoUrl: "https://example.com/netflix_logo.png",
+          releaseDate: null,
+          expireDate: "2025-11-30",
+        },
+      ],
+      wishlistId: null,
+    },
+    {
+      programId: 15,
+      title: "나의 해방일지",
+      description: "삶의 해방을 꿈꾸는 세 남매의 일상 드라마",
+      thumbnailUrl: "",
+      backdropUrl: "",
+      genre: "Drama",
+      runningTime: 55,
+      ranking: null,
+      status: "EXPIRING",
+      availability: [
+        {
+          ottId: 1,
+          logoUrl: "https://example.com/netflix_logo.png",
+          releaseDate: null,
+          expireDate: "2025-12-05",
+        },
+      ],
+      wishlistId: null,
+    },
+  ];
+
+  const { addToWishlist } = useWishlist();
   const [activeTab, setActiveTab] = useState<ContentTab>("popular");
   const [heroIndex, setHeroIndex] = useState(0);
-  const [popularShows, setPopularShows] = useState<Content[]>([]);
-  const [upcomingShows, setUpcomingShows] = useState<Content[]>([]);
-  const [endingShows, setEndingShows] = useState<Content[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
 
-  //로딩
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 모달
-  const [selectedContent, setSelectedContent] = useState<Content | null>(null);
+  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleContentClick = (content: Content) => {
-    setSelectedContent(content);
+
+  const handleContentClick = (program: Program) => {
+    setSelectedProgram(program);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedContent(null);
+    setSelectedProgram(null);
   };
 
-  // 검색
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<Content[]>([]);
+  const [searchResults, setSearchResults] = useState<Program[]>([]);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchContents = async () => {
+    const fetchPrograms = async () => {
       try {
         setLoading(true);
-        // const { popular, upcoming, ending } = await getAllContents();
-        // setPopularShows(popular);
-        // setUpcomingShows(upcoming);
-        // setEndingShows(ending);
-        await new Promise((resolve) => setTimeout(resolve, 500)); // 로딩 시뮬레이션
-        setPopularShows(DEMO_DATA.popular);
-        setUpcomingShows(DEMO_DATA.upcoming);
-        setEndingShows(DEMO_DATA.ending);
+        // TODO: API 연동 시 아래 주석 해제
+        // const response = await apiClient.get<Program[]>("/programs");
+        // setPrograms(response.data);
+
+        // DEMO 데이터 사용
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        setPrograms(DEMO_DATA);
         setError(null);
       } catch (err) {
         console.error("콘텐츠 로딩 실패:", err);
@@ -224,72 +385,105 @@ const MainPage: React.FC = () => {
       }
     };
 
-    fetchContents();
+    fetchPrograms();
   }, []);
 
   useEffect(() => {
+    const shows = getCurrentShows();
+    if (shows.length === 0) return;
+
     const timer = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % getCurrentShows().length);
+      setHeroIndex((prev) => (prev + 1) % shows.length);
     }, 7000);
 
     return () => clearInterval(timer);
-  }, [activeTab, popularShows, upcomingShows, endingShows]);
+  }, [activeTab, programs]);
 
-  const getCurrentShows = () => {
-    let shows: Content[] = [];
+  // OTT ID로 플랫폼 이름 가져오기
+  const getOttName = (ottId: number): string => {
+    const ottNames: { [key: number]: string } = {
+      1: "NETFLIX",
+      2: "WAVVE",
+      3: "DISNEY_PLUS",
+    };
+    return ottNames[ottId] || "UNKNOWN";
+  };
+
+  // 현재 탭에 맞는 프로그램 필터링 및 정렬
+  const getCurrentShows = (): Program[] => {
+    let filtered: Program[] = [];
 
     switch (activeTab) {
       case "popular":
-        shows = [...popularShows];
-        // 순위 기준 오름차순 정렬 (rank가 있는 경우)
-        shows.sort((a, b) => {
-          const rankA = a.rank || 999;
-          const rankB = b.rank || 999;
-          return rankA - rankB;
-        });
+        // ranking이 있는 프로그램 (인기작)
+        filtered = programs.filter((p) => p.ranking !== null);
+        filtered.sort((a, b) => (a.ranking || 999) - (b.ranking || 999));
         break;
 
       case "upcoming":
-        shows = [...upcomingShows];
-        // 공개일 기준 오름차순 정렬 (빠른 날짜 먼저)
-        shows.sort((a, b) => {
-          const dateA = new Date(a.releaseDate.replace(/\./g, "."));
-          const dateB = new Date(b.releaseDate.replace(/\./g, "."));
-          return dateA.getTime() - dateB.getTime();
+        // status가 UPCOMING인 프로그램
+        filtered = programs.filter((p) => p.status === "UPCOMING");
+        filtered.sort((a, b) => {
+          const dateA = a.availability[0]?.releaseDate || "";
+          const dateB = b.availability[0]?.releaseDate || "";
+          return new Date(dateA).getTime() - new Date(dateB).getTime();
         });
         break;
 
       case "ending":
-        shows = [...endingShows];
-        // 종료일 기준 오름차순 정렬 (임박한 날짜 먼저)
-        shows.sort((a, b) => {
-          const dateA = new Date(a.releaseDate.replace(/\./g, "-"));
-          const dateB = new Date(b.releaseDate.replace(/\./g, "-"));
-          return dateA.getTime() - dateB.getTime();
+        // status가 EXPIRING인 프로그램
+        filtered = programs.filter((p) => p.status === "EXPIRING");
+        filtered.sort((a, b) => {
+          const dateA = a.availability[0]?.expireDate || "";
+          const dateB = b.availability[0]?.expireDate || "";
+          return new Date(dateA).getTime() - new Date(dateB).getTime();
         });
         break;
 
       default:
-        shows = popularShows;
+        filtered = programs.filter((p) => p.ranking !== null);
     }
 
-    return shows;
+    return filtered;
   };
 
-  const getHeroContent = () => {
+  // 플랫폼별 프로그램 필터링
+  const getProgramsByOtt = (ottId: number): Program[] => {
+    return getCurrentShows().filter((program) =>
+      program.availability.some((avail) => avail.ottId === ottId)
+    );
+  };
+
+  const getHeroContent = (): Program | null => {
     const shows = getCurrentShows();
-    return shows[heroIndex] || shows[0];
+    return shows[heroIndex] || shows[0] || null;
   };
 
-  const getHeroShortInfo = () => {
+  const getHeroShortInfo = (): string => {
     const content = getHeroContent();
+    if (!content) return "";
+
     switch (activeTab) {
       case "popular":
-        return `${content.platform} ${content.rank}위`;
+        const ottName = getOttName(content.availability[0]?.ottId || 0);
+        return `${ottName} ${content.ranking}위`;
       case "upcoming":
-        return `${content.releaseDate} 공개`;
+        return `${content.availability[0]?.releaseDate || ""} 공개`;
       case "ending":
-        return `${content.releaseDate} 종료`;
+        return `${content.availability[0]?.expireDate || ""} 종료`;
+      default:
+        return "";
+    }
+  };
+
+  // 날짜 표시 포맷
+  const getDisplayDate = (program: Program): string => {
+    if (activeTab === "popular") {
+      return "현재 방영중";
+    } else if (activeTab === "upcoming") {
+      return program.availability[0]?.releaseDate || "";
+    } else {
+      return program.availability[0]?.expireDate || "";
     }
   };
 
@@ -298,9 +492,8 @@ const MainPage: React.FC = () => {
     setSearchQuery(query);
 
     if (query.trim()) {
-      const allContents = [...popularShows, ...upcomingShows, ...endingShows];
-      const filtered = allContents.filter((content) =>
-        content.title.toLowerCase().includes(query.toLowerCase())
+      const filtered = programs.filter((program) =>
+        program.title.toLowerCase().includes(query.toLowerCase())
       );
       setSearchResults(filtered.slice(0, 5));
       setShowSearchDropdown(true);
@@ -331,9 +524,14 @@ const MainPage: React.FC = () => {
     );
   };
 
-  const handleDropdownItemClick = (content: Content) => {
+  const handleDropdownItemClick = (program: Program) => {
     setShowSearchDropdown(false);
-    handleContentClick(content);
+    handleContentClick(program);
+  };
+
+  // 찜하기 핸들러
+  const handleAddToWishlist = (program: Program) => {
+    addToWishlist(program.programId, program.title);
   };
 
   if (loading) {
@@ -359,7 +557,7 @@ const MainPage: React.FC = () => {
     );
   }
 
-  const currentShows = getCurrentShows();
+  const heroContent = getHeroContent();
 
   return (
     <div className="main-page">
@@ -398,19 +596,24 @@ const MainPage: React.FC = () => {
               onFocus={() => searchQuery && setShowSearchDropdown(true)}
             />
 
-            {/* 검색 드롭다운 */}
             {showSearchDropdown && searchResults.length > 0 && (
               <div className="search-dropdown">
-                {searchResults.slice(0, 5).map((content) => (
+                {searchResults.map((program) => (
                   <div
-                    key={content.id}
+                    key={program.programId}
                     className="search-dropdown-item"
-                    onClick={() => handleDropdownItemClick(content)}
+                    onClick={() => handleDropdownItemClick(program)}
                   >
                     <div className="search-item-title">
-                      {highlightMatch(content.title, searchQuery)}
+                      {highlightMatch(program.title, searchQuery)}
                     </div>
-                    <button className="search-add-button">
+                    <button
+                      className="search-add-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToWishlist(program);
+                      }}
+                    >
                       <svg
                         width="10"
                         height="10"
@@ -442,16 +645,16 @@ const MainPage: React.FC = () => {
           <div
             className="hero-background"
             style={{
-              backgroundImage: getHeroContent().image
-                ? `url(${getHeroContent().image})`
+              backgroundImage: heroContent?.backdropUrl
+                ? `url(${heroContent.backdropUrl})`
                 : undefined,
             }}
           />
           <div className="hero-gradient" />
           <div className="hero-content">
             <h5 className="hero-shortInfo">{getHeroShortInfo()}</h5>
-            <h3 className="hero-title">{getHeroContent().title}</h3>
-            <div className="hero-buttons">{/* 기존 버튼들 */}</div>
+            <h3 className="hero-title">{heroContent?.title || ""}</h3>
+            <div className="hero-buttons"></div>
           </div>
         </section>
 
@@ -520,34 +723,36 @@ const MainPage: React.FC = () => {
               <span className="platform-logo">NETFLIX</span>
             </h3>
             <div className="content-scroll">
-              {currentShows
-                .filter((show) => show.platform === "NETFLIX")
+              {getProgramsByOtt(1)
                 .slice(0, 10)
-                .map((show, index) => (
-                  <div key={index} className="content-card">
+                .map((program) => (
+                  <div key={program.programId} className="content-card">
                     <div
                       className="poster-container"
-                      onClick={() => handleContentClick(show)}
+                      onClick={() => handleContentClick(program)}
                       style={{ cursor: "pointer" }}
                     >
                       <div
                         className="poster-image"
                         style={{
-                          backgroundImage: show.image
-                            ? `url(${show.image})`
+                          backgroundImage: program.thumbnailUrl
+                            ? `url(${program.thumbnailUrl})`
                             : undefined,
-                          backgroundColor: show.image ? undefined : "#ccc",
+                          backgroundColor: program.thumbnailUrl
+                            ? undefined
+                            : "#ccc",
                         }}
                       >
-                        {!show.image && <span>이미지 없음</span>}
+                        {!program.thumbnailUrl && <span>이미지 없음</span>}
                       </div>
                     </div>
-                    <h4 className="content-title">{show.title}</h4>
-                    <div className="content-date">{show.releaseDate}</div>
-                    {/* 버튼에 onClick 이벤트를 추가하고, addToWishlist 함수 연결 */}
+                    <h4 className="content-title">{program.title}</h4>
+                    <div className="content-date">
+                      {getDisplayDate(program)}
+                    </div>
                     <button
                       className="add-button"
-                      onClick={() => addToWishlist(show)}
+                      onClick={() => handleAddToWishlist(program)}
                     >
                       <svg
                         width="16"
@@ -575,33 +780,93 @@ const MainPage: React.FC = () => {
               <span className="platform-logo wavve">WAVVE</span>
             </h3>
             <div className="content-scroll">
-              {currentShows
-                .filter((show) => show.platform === "WAVVE")
+              {getProgramsByOtt(2)
                 .slice(0, 10)
-                .map((show, index) => (
-                  <div key={index} className="content-card">
+                .map((program) => (
+                  <div key={program.programId} className="content-card">
                     <div
                       className="poster-container"
-                      onClick={() => handleContentClick(show)}
+                      onClick={() => handleContentClick(program)}
+                      style={{ cursor: "pointer" }}
                     >
                       <div
                         className="poster-image"
                         style={{
-                          backgroundImage: show.image
-                            ? `url(${show.image})`
+                          backgroundImage: program.thumbnailUrl
+                            ? `url(${program.thumbnailUrl})`
                             : undefined,
-                          backgroundColor: show.image ? undefined : "#ccc",
+                          backgroundColor: program.thumbnailUrl
+                            ? undefined
+                            : "#ccc",
                         }}
                       >
-                        {!show.image && <span>이미지 없음</span>}
+                        {!program.thumbnailUrl && <span>이미지 없음</span>}
                       </div>
                     </div>
-                    <h4 className="content-title">{show.title}</h4>
-                    <div className="content-date">{show.releaseDate}</div>
-                    {/* 버튼에 onClick 이벤트를 추가하고, addToWishlist 함수 연결 */}
+                    <h4 className="content-title">{program.title}</h4>
+                    <div className="content-date">
+                      {getDisplayDate(program)}
+                    </div>
                     <button
                       className="add-button"
-                      onClick={() => addToWishlist(show)}
+                      onClick={() => handleAddToWishlist(program)}
+                    >
+                      <svg
+                        width="16"
+                        height="20"
+                        viewBox="0 0 16 20"
+                        fill="none"
+                      >
+                        <path
+                          d="M8 4V16M2 10H14"
+                          stroke="#1F2937"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <span>보고싶은 목록에 추가</span>
+                    </button>
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {/* Disney+ Row */}
+          <div className="platform-row">
+            <h3 className="platform-title">
+              <span className="platform-logo disney">DISNEY+</span>
+            </h3>
+            <div className="content-scroll">
+              {getProgramsByOtt(3)
+                .slice(0, 10)
+                .map((program) => (
+                  <div key={program.programId} className="content-card">
+                    <div
+                      className="poster-container"
+                      onClick={() => handleContentClick(program)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div
+                        className="poster-image"
+                        style={{
+                          backgroundImage: program.thumbnailUrl
+                            ? `url(${program.thumbnailUrl})`
+                            : undefined,
+                          backgroundColor: program.thumbnailUrl
+                            ? undefined
+                            : "#ccc",
+                        }}
+                      >
+                        {!program.thumbnailUrl && <span>이미지 없음</span>}
+                      </div>
+                    </div>
+                    <h4 className="content-title">{program.title}</h4>
+                    <div className="content-date">
+                      {getDisplayDate(program)}
+                    </div>
+                    <button
+                      className="add-button"
+                      onClick={() => handleAddToWishlist(program)}
                     >
                       <svg
                         width="16"
@@ -624,14 +889,28 @@ const MainPage: React.FC = () => {
           </div>
         </section>
       </main>
-      {/* Modal */}
 
-      {selectedContent && (
+      {/* Modal - TODO: ContentModal도 Program 타입에 맞게 수정 필요 */}
+      {selectedProgram && (
         <ContentModal
-          content={selectedContent}
+          content={{
+            id: selectedProgram.programId,
+            title: selectedProgram.title,
+            image: selectedProgram.thumbnailUrl,
+            platform: getOttName(selectedProgram.availability[0]?.ottId || 0),
+            releaseDate: getDisplayDate(selectedProgram),
+            genres: [selectedProgram.genre],
+            description: selectedProgram.description,
+            availablePlatforms: selectedProgram.availability.map((a) =>
+              getOttName(a.ottId)
+            ),
+            runtime: selectedProgram.runningTime
+              ? `${selectedProgram.runningTime}분`
+              : undefined,
+          }}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          onAddToWishlist={addToWishlist} // 모달에도 addToWishlist 함수를 prop으로 전달
+          onAddToWishlist={() => handleAddToWishlist(selectedProgram)}
         />
       )}
     </div>

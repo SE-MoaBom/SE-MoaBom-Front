@@ -1,20 +1,31 @@
 import React from "react";
-import { type Content } from "../api/contentService";
-import "../styles/contentModal.css";
+import "../styles/ContentModal.css";
 
-// props 타입 정의에 onAddToWishlist 추가
+// 모달에서 사용할 콘텐츠 타입 정의
+interface ModalContent {
+  id: number;
+  title: string;
+  image: string;
+  platform: string;
+  releaseDate?: string;
+  genres: string[];
+  description: string;
+  availablePlatforms: string[];
+  runtime?: string;
+}
+
 interface ContentModalProps {
-  content: Content;
+  content: ModalContent;
   isOpen: boolean;
   onClose: () => void;
-  onAddToWishlist: (content: Content) => void; // 찜 목록에 추가하는 함수
+  onAddToWishlist: () => void; // 인자 없이 호출
 }
 
 const ContentModal: React.FC<ContentModalProps> = ({
   content,
   isOpen,
   onClose,
-  onAddToWishlist, // props로부터 onAddToWishlist 함수 받기
+  onAddToWishlist,
 }) => {
   if (!isOpen) return null;
 
@@ -31,6 +42,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
       case "WAVVE":
         return "wavve";
       case "DISNEY_PLUS":
+      case "DISNEY+":
         return "disney";
       default:
         return "";
@@ -46,10 +58,9 @@ const ContentModal: React.FC<ContentModalProps> = ({
     return parts.join(" · ");
   };
 
-  // 추가 버튼 클릭 시 실행될 핸들러 함수
   const handleAddClick = () => {
-    onAddToWishlist(content); // Context의 함수를 호출하여 아이템 추가
-    onClose(); // 아이템을 추가한 후 모달 닫기
+    onAddToWishlist();
+    onClose();
   };
 
   return (
@@ -100,7 +111,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                         platform
                       )}`}
                     >
-                      {platform.toUpperCase()}
+                      {platform.replace("_", " ").toUpperCase()}
                     </div>
                   ))
                 ) : (
@@ -109,7 +120,7 @@ const ContentModal: React.FC<ContentModalProps> = ({
                       content.platform
                     )}`}
                   >
-                    {content.platform.toUpperCase()}
+                    {content.platform.replace("_", " ").toUpperCase()}
                   </div>
                 )}
               </div>
@@ -117,7 +128,6 @@ const ContentModal: React.FC<ContentModalProps> = ({
 
             {/* Action Button */}
             <div className="modal-action-section">
-              {/* 버튼에 onClick 이벤트 연결 */}
               <button className="modal-add-button" onClick={handleAddClick}>
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                   <path

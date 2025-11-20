@@ -92,8 +92,9 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 16px;
-  flex: 1;
+  flex: 1 1 0%;
   min-width: 0;
+  max-width: calc(100% - 272px); /* 240px poster + 32px gap */
 }
 
 /* Title */
@@ -104,6 +105,8 @@
   line-height: 36px;
   color: #111827;
   margin: 0;
+  width: 100%;
+  word-break: keep-all;
 }
 
 /* Meta Info */
@@ -113,6 +116,7 @@
   font-size: 14px;
   line-height: 20px;
   color: #4b5563;
+  width: 100%;
 }
 
 /* Description */
@@ -125,6 +129,8 @@
   max-height: 200px;
   overflow-y: auto;
   padding-right: 8px;
+  width: 100%;
+  word-break: keep-all;
 }
 
 .modal-description::-webkit-scrollbar {
@@ -247,6 +253,10 @@
   .modal-poster {
     width: 200px;
     height: 300px;
+  }
+
+  .modal-info-container {
+    max-width: 100%;
   }
 
   .modal-title {
