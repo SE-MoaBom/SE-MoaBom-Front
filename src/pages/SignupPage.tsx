@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import apiClient from "../api/client";
+import { signup } from "../api/authService";
 import SimpleHeader from "../components/SimpleHeader";
 import "../styles/SignupPage.css";
 
@@ -58,10 +58,7 @@ const SignupPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await apiClient.post("/auth/signup", {
-        email,
-        password,
-      });
+      await signup({ email, password }); // authService 사용
 
       // 첫 로그인 플래그 저장
       localStorage.setItem("isNewUser", "true");
@@ -72,7 +69,11 @@ const SignupPage: React.FC = () => {
       if (err.response) {
         const status = err.response.status;
         if (status === 400) {
-          setError(err.response.data.message || "이미 사용중인 이메일입니다.");
+          setError(
+            err.response.data.message ||
+              err.response.data.error ||
+              "이미 사용중인 이메일입니다."
+          );
         } else if (status === 500) {
           setError("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
         } else {

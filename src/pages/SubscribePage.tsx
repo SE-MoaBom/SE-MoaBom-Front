@@ -1,24 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import apiClient from "../api/client";
+import { getOTTList, type OTT } from "../api/ottService";
+import {
+  getSubscriptions,
+  createSubscription,
+  updateSubscription,
+  deleteSubscription,
+  type Subscription,
+} from "../api/subscriptionService";
 import "../styles/SubscribePage.css";
-
-interface OttInfo {
-  ottId: number;
-  name: string;
-  price: number;
-  logoUrl: string;
-}
-
-interface MySubscription {
-  subscribeId: number;
-  ottId: number;
-  ottName: string;
-  logoUrl: string;
-  startDate: string;
-  endDate: string | null;
-}
 
 interface NewSubscription {
   ottId: number;
@@ -28,8 +19,8 @@ interface NewSubscription {
 
 const SubscribePage: React.FC = () => {
   const navigate = useNavigate();
-  const [ottList, setOttList] = useState<OttInfo[]>([]);
-  const [mySubscriptions, setMySubscriptions] = useState<MySubscription[]>([]);
+  const [ottList, setOttList] = useState<OTT[]>([]);
+  const [mySubscriptions, setMySubscriptions] = useState<Subscription[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newSubscription, setNewSubscription] = useState<NewSubscription>({
     ottId: 0,
@@ -55,31 +46,29 @@ const SubscribePage: React.FC = () => {
 
   const fetchOttList = async () => {
     try {
-      const response = await apiClient.get("/otts");
-      setOttList(response.data);
+      const data = await getOTTList();
+      setOttList(data);
     } catch (err) {
-      console.error("OTT 목록을 불러오는데 실패했습니다.");
+      console.error("OTT 목록을 불러오는데 실패했습니다.", err);
     }
   };
 
   const fetchMySubscriptions = async () => {
     try {
-      const response = await apiClient.get("/subscriptions");
-      setMySubscriptions(response.data);
+      const data = await getSubscriptions();
+      setMySubscriptions(data);
     } catch (err: any) {
       if (err.response?.status === 401) {
         // 로그인 필요
         navigate("/login");
       } else {
-        console.error("구독 정보를 불러오는데 실패했습니다.");
+        console.error("구독 정보를 불러오는데 실패했습니다.", err);
       }
     }
   };
 
   // 구독 추가
   const handleAddSubscription = async () => {
-    console.log(localStorage.getItem("token"));
-
     if (newSubscription.ottId === 0) {
       setError("OTT를 선택해주세요.");
       return;
@@ -102,7 +91,7 @@ const SubscribePage: React.FC = () => {
     setError("");
 
     try {
-      await apiClient.post("/subscriptions", {
+      await createSubscription({
         ottId: newSubscription.ottId,
         startDate: newSubscription.startDate,
         endDate: newSubscription.endDate || null,
@@ -136,7 +125,7 @@ const SubscribePage: React.FC = () => {
     setError("");
 
     try {
-      await apiClient.patch(`/subscriptions/${subscribeId}`, {
+      await updateSubscription(subscribeId, {
         startDate: editData.startDate,
         endDate: editData.endDate || null,
       });
@@ -159,7 +148,7 @@ const SubscribePage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await apiClient.delete(`/subscriptions/${subscribeId}`);
+      await deleteSubscription(subscribeId);
       await fetchMySubscriptions();
     } catch (err: any) {
       setError("구독 삭제 중 오류가 발생했습니다.");
@@ -169,7 +158,7 @@ const SubscribePage: React.FC = () => {
   };
 
   // 수정 모드 시작
-  const startEditing = (subscription: MySubscription) => {
+  const startEditing = (subscription: Subscription) => {
     setEditingId(subscription.subscribeId);
     setEditData({
       startDate: subscription.startDate,

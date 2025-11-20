@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import apiClient from "../api/client";
+import { getMe, type User } from "../api/authService";
 
 interface AuthContextType {
   isLoggedIn: boolean;
-  user: { name: string; email: string } | null;
-  login: (userData: { name: string; email: string }) => void;
+  user: User | null;
+  login: (token: string) => Promise<void>; // 토큰을 받도록 변경
   logout: () => void;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -15,33 +16,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<{ name: string; email: string } | null>(
-    null
-  );
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // 앱 시작 시 토큰 확인
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      // 토큰이 있으면 사용자 정보 가져오기
-      apiClient
-        .get("/users/me")
-        .then((response) => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const userData = await getMe();
           setIsLoggedIn(true);
-          setUser({
-            name: response.data.email.split("@")[0],
-            email: response.data.email,
-          });
-        })
-        .catch(() => {
+          setUser(userData);
+        } catch {
           localStorage.removeItem("token");
-        });
-    }
+          setIsLoggedIn(false);
+          setUser(null);
+        }
+      }
+      setIsLoading(false);
+    };
+
+    checkAuth();
   }, []);
 
-  const login = (userData: { name: string; email: string }) => {
-    setIsLoggedIn(true);
-    setUser(userData);
+  // 토큰을 받아서 저장하고 사용자 정보를 가져옴
+  const login = async (token: string) => {
+    localStorage.setItem("token", token);
+    try {
+      const userData = await getMe();
+      setIsLoggedIn(true);
+      setUser(userData);
+    } catch {
+      localStorage.removeItem("token");
+      throw new Error("사용자 정보를 가져오는데 실패했습니다.");
+    }
   };
 
   const logout = () => {
@@ -51,7 +60,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, login, logout }}>
+    <AuthContext.Provider
+      value={{ isLoggedIn, user, login, logout, isLoading }}
+    >
       {children}
     </AuthContext.Provider>
   );

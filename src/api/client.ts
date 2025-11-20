@@ -28,11 +28,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // // 인증 실패 시 로그인 페이지로 이동
-      // localStorage.removeItem("token");
-      // window.location.href = "/login";
-
-      // 로그인 요청은 제외 (이미 로그인 페이지에 있으므로)
+      // 인증 실패 시 로그인 페이지로 이동
       const isLoginRequest = error.config?.url?.includes("/auth/login");
 
       if (!isLoginRequest) {

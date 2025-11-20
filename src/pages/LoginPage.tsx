@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import apiClient from "../api/client";
+import { login as loginAPI } from "../api/authService";
 import SimpleHeader from "../components/SimpleHeader";
 import "../styles/LoginPage.css";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login: authLogin } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -43,16 +43,8 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await apiClient.post("/auth/login", {
-        email,
-        password,
-      });
-
-      const { token } = response.data;
-      localStorage.setItem("token", token);
-
-      // AuthContext 업데이트
-      login({ name: email.split("@")[0], email });
+      const response = await loginAPI({ email, password });
+      await authLogin(response.token);
 
       // 신규 사용자인지 확인
       const isNewUser = localStorage.getItem("isNewUser") === "true";

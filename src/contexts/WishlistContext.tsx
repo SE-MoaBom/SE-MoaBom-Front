@@ -1,21 +1,29 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 import type { ReactNode } from "react";
-// MainPage에서 사용하는 Content 타입을 그대로 가져오기
-import { type Content } from "../api/contentService";
+import {
+  getWishlist,
+  addToWishlist as addToWishlistAPI,
+  removeFromWishlist as removeFromWishlistAPI,
+  type WishlistItem,
+} from "../api/wishlistService";
+import { useAuth } from "./AuthContext";
 
 // Context에 담길 데이터와 함수의 타입 정의
 interface WishlistContextType {
-  wishlist: Content[]; // 찜한 목록 배열
-  addToWishlist: (content: Content) => void; // 목록에 추가하는 함수
-  removeFromWishlist: (contentId: number) => void; // 목록에서 삭제하는 함수
+  wishlist: WishlistItem[];
+  addToWishlist: (programId: number, title: string) => Promise<void>;
+  removeFromWishlist: (wishlistId: number) => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
+  refreshWishlist: () => Promise<void>;
 }
 
-// Context 생성. 처음에는 아무 값도 없음
+// Context 생성
 const WishlistContext = createContext<WishlistContextType | undefined>(
   undefined
 );
 
-// 다른 컴포넌트들이 이 Context를 쉽게 사용할 수 있도록 도와주는 커스텀 훅
+// 커스텀 훅
 export const useWishlist = () => {
   const context = useContext(WishlistContext);
   if (!context) {
@@ -26,31 +34,82 @@ export const useWishlist = () => {
   return context;
 };
 
-// 앱 전체에 찜 목록 데이터를 제공할 Provider 컴포넌트
+// Provider 컴포넌트
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
-  // useState를 이용해 실제 찜 목록 데이터를 저장하고 관리
-  const [wishlist, setWishlist] = useState<Content[]>([]);
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { isLoggedIn } = useAuth();
 
-  // 찜 목록에 아이템을 추가하는 함수
-  const addToWishlist = (contentToAdd: Content) => {
-    // 이미 목록에 있는지 확인해서 중복 추가를 방지
-    if (!wishlist.some((item) => item.id === contentToAdd.id)) {
-      setWishlist((prevWishlist) => [...prevWishlist, contentToAdd]);
-      alert(`'${contentToAdd.title}'이(가) 보고싶은 목록에 추가되었습니다.`);
-    } else {
-      alert(`'${contentToAdd.title}'은(는) 이미 목록에 있습니다.`);
+  // 찜 목록 불러오기
+  const refreshWishlist = async () => {
+    if (!isLoggedIn) {
+      setWishlist([]);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await getWishlist();
+      setWishlist(data);
+    } catch (err) {
+      console.error("찜 목록 조회 실패:", err);
+      setError("찜 목록을 불러오는데 실패했습니다.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // 찜 목록에서 아이템을 삭제하는 함수
-  const removeFromWishlist = (contentId: number) => {
-    setWishlist((prevWishlist) =>
-      prevWishlist.filter((item) => item.id !== contentId)
-    );
+  // 로그인 상태 변경 시 찜 목록 새로고침
+  useEffect(() => {
+    refreshWishlist();
+  }, [isLoggedIn]);
+
+  // 찜 목록에 아이템 추가
+  const addToWishlist = async (programId: number, title: string) => {
+    if (!isLoggedIn) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
+    // 이미 목록에 있는지 확인
+    if (wishlist.some((item) => item.programId === programId)) {
+      alert(`'${title}'은(는) 이미 찜 목록에 있습니다.`);
+      return;
+    }
+
+    try {
+      await addToWishlistAPI({ programId });
+      await refreshWishlist();
+      alert(`'${title}'이(가) 찜 목록에 추가되었습니다.`);
+    } catch (err) {
+      console.error("찜하기 실패:", err);
+      alert("찜하기에 실패했습니다.");
+    }
   };
 
-  // Provider는 value를 통해 찜 목록 데이터와 함수들을 하위 컴포넌트에게 전달
-  const value = { wishlist, addToWishlist, removeFromWishlist };
+  // 찜 목록에서 아이템 삭제
+  const removeFromWishlist = async (wishlistId: number) => {
+    try {
+      await removeFromWishlistAPI(wishlistId);
+      setWishlist((prev) =>
+        prev.filter((item) => item.wishlistId !== wishlistId)
+      );
+    } catch (err) {
+      console.error("찜 취소 실패:", err);
+      alert("찜 취소에 실패했습니다.");
+    }
+  };
+
+  const value = {
+    wishlist,
+    addToWishlist,
+    removeFromWishlist,
+    isLoading,
+    error,
+    refreshWishlist,
+  };
 
   return (
     <WishlistContext.Provider value={value}>
