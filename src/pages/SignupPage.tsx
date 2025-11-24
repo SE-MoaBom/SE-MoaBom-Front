@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signup } from "../api/authService";
 import SimpleHeader from "../components/SimpleHeader";
-import "../styles/SignupPage.css";
+import "../styles/signupPage.css";
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();

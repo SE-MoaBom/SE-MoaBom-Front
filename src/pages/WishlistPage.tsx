@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { useWishlist } from "../contexts/WishlistContext";
 
-import "../styles/WishlistPage.css";
+import "../styles/wishlistPage.css";
 
 const TrashIcon = () => (
   <svg

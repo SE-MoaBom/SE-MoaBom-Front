@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { login as loginAPI } from "../api/authService";
 import SimpleHeader from "../components/SimpleHeader";
-import "../styles/LoginPage.css";
+import "../styles/loginPage.css";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();

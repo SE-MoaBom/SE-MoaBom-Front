@@ -1,6 +1,6 @@
 import React from "react";
 import { type Program } from "../api/programService";
-import "../styles/ContentModal.css";
+import "../styles/contentModal.css";
 
 interface ContentModalProps {
   content: Program; // ← Content 대신 Program 사용
