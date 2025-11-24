@@ -19,6 +19,7 @@ export interface ProgramAvailability {
 
 // 프로그램 목록 아이템 타입
 export interface Program {
+  availability: any;
   programId: number;
   title: string;
   description: string;

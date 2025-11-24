@@ -4,340 +4,323 @@ import ContentModal from "../components/ContentModal";
 import "../styles/mainPage.css";
 import { useNavigate } from "react-router-dom";
 import { useWishlist } from "../contexts/WishlistContext";
+import {
+  searchPrograms,
+  type Program,
+  type ProgramAvailability,
+} from "../api/programService";
 
 type ContentTab = "popular" | "upcoming" | "ending";
 
-// API 응답 형식에 맞는 타입 정의
-interface ProgramAvailability {
-  ottId: number;
-  logoUrl: string;
-  releaseDate: string | null;
-  expireDate: string | null;
-}
-
-interface Program {
-  programId: number;
-  title: string;
-  description: string;
-  thumbnailUrl: string;
-  backdropUrl: string;
-  genre: string;
-  runningTime: number | null;
-  ranking: number | null;
-  status: "UPCOMING" | "EXPIRING" | null;
-  availability: ProgramAvailability[];
-  wishlistId: number | null;
-}
-
 const MainPage: React.FC = () => {
   // DEMO 데이터 - API 응답 형식에 맞춤
-  const DEMO_DATA: Program[] = [
-    // 인기작 (ranking 있음)
-    {
-      programId: 1,
-      title: "더 글로리",
-      description:
-        "학교 폭력의 피해자가 18년간 치밀하게 준비한 복수극을 그린 드라마",
-      thumbnailUrl: "",
-      backdropUrl: "",
-      genre: "Drama",
-      runningTime: 50,
-      ranking: 1,
-      status: null,
-      availability: [
-        {
-          ottId: 1,
-          logoUrl: "https://example.com/netflix_logo.png",
-          releaseDate: null,
-          expireDate: null,
-        },
-      ],
-      wishlistId: null,
-    },
-    {
-      programId: 2,
-      title: "피지컬: 100",
-      description: "100명의 참가자가 최고의 신체 능력을 겨루는 서바이벌 예능",
-      thumbnailUrl: "",
-      backdropUrl: "",
-      genre: "Reality",
-      runningTime: 60,
-      ranking: 2,
-      status: null,
-      availability: [
-        {
-          ottId: 1,
-          logoUrl: "https://example.com/netflix_logo.png",
-          releaseDate: null,
-          expireDate: null,
-        },
-      ],
-      wishlistId: null,
-    },
-    {
-      programId: 3,
-      title: "환승연애3",
-      description: "헤어진 연인들이 새로운 사랑을 찾아가는 연애 리얼리티",
-      thumbnailUrl: "",
-      backdropUrl: "",
-      genre: "Reality",
-      runningTime: 70,
-      ranking: 1,
-      status: null,
-      availability: [
-        {
-          ottId: 2,
-          logoUrl: "https://example.com/wavve_logo.png",
-          releaseDate: null,
-          expireDate: null,
-        },
-      ],
-      wishlistId: null,
-    },
-    {
-      programId: 4,
-      title: "이재, 곧 죽습니다",
-      description:
-        "죽음을 앞둔 재벌 3세가 자신의 삶을 되돌아보는 판타지 드라마",
-      thumbnailUrl: "",
-      backdropUrl: "",
-      genre: "Fantasy",
-      runningTime: 55,
-      ranking: 3,
-      status: null,
-      availability: [
-        {
-          ottId: 1,
-          logoUrl: "https://example.com/netflix_logo.png",
-          releaseDate: null,
-          expireDate: null,
-        },
-      ],
-      wishlistId: null,
-    },
-    {
-      programId: 5,
-      title: "오징어 게임 시즌2",
-      description: "456억 원의 상금을 건 서바이벌 게임의 두 번째 시즌",
-      thumbnailUrl: "",
-      backdropUrl: "",
-      genre: "Thriller",
-      runningTime: 60,
-      ranking: 4,
-      status: null,
-      availability: [
-        {
-          ottId: 1,
-          logoUrl: "https://example.com/netflix_logo.png",
-          releaseDate: null,
-          expireDate: null,
-        },
-      ],
-      wishlistId: null,
-    },
-    // 공개 예정작 (status: UPCOMING)
-    {
-      programId: 6,
-      title: "킹덤 시즌3",
-      description: "조선시대 좀비 사극의 세 번째 시즌",
-      thumbnailUrl: "",
-      backdropUrl: "",
-      genre: "Horror",
-      runningTime: 50,
-      ranking: null,
-      status: "UPCOMING",
-      availability: [
-        {
-          ottId: 1,
-          logoUrl: "https://example.com/netflix_logo.png",
-          releaseDate: "2025-04-15",
-          expireDate: null,
-        },
-      ],
-      wishlistId: null,
-    },
-    {
-      programId: 7,
-      title: "수리남 시즌2",
-      description: "남미 마약 조직에 잠입한 사업가의 실화 기반 드라마",
-      thumbnailUrl: "",
-      backdropUrl: "",
-      genre: "Crime",
-      runningTime: 55,
-      ranking: null,
-      status: "UPCOMING",
-      availability: [
-        {
-          ottId: 1,
-          logoUrl: "https://example.com/netflix_logo.png",
-          releaseDate: "2025-05-20",
-          expireDate: null,
-        },
-      ],
-      wishlistId: null,
-    },
-    {
-      programId: 8,
-      title: "무빙 시즌2",
-      description: "초능력을 숨기고 살아가는 가족들의 이야기",
-      thumbnailUrl: "",
-      backdropUrl: "",
-      genre: "Action",
-      runningTime: 60,
-      ranking: null,
-      status: "UPCOMING",
-      availability: [
-        {
-          ottId: 3,
-          logoUrl: "https://example.com/disney_logo.png",
-          releaseDate: "2025-06-10",
-          expireDate: null,
-        },
-      ],
-      wishlistId: null,
-    },
-    {
-      programId: 9,
-      title: "카지노",
-      description: "필리핀 카지노를 배경으로 한 범죄 스릴러",
-      thumbnailUrl: "",
-      backdropUrl: "",
-      genre: "Crime",
-      runningTime: 50,
-      ranking: null,
-      status: "UPCOMING",
-      availability: [
-        {
-          ottId: 2,
-          logoUrl: "https://example.com/wavve_logo.png",
-          releaseDate: "2025-04-25",
-          expireDate: null,
-        },
-      ],
-      wishlistId: null,
-    },
-    {
-      programId: 10,
-      title: "재벌집 막내아들 시즌2",
-      description: "재벌가에 빙의한 남자의 복수극 두 번째 시즌",
-      thumbnailUrl: "",
-      backdropUrl: "",
-      genre: "Fantasy",
-      runningTime: 55,
-      ranking: null,
-      status: "UPCOMING",
-      availability: [
-        {
-          ottId: 2,
-          logoUrl: "https://example.com/wavve_logo.png",
-          releaseDate: "2025-07-01",
-          expireDate: null,
-        },
-      ],
-      wishlistId: null,
-    },
-    // 종료 예정작 (status: EXPIRING)
-    {
-      programId: 11,
-      title: "스위트홈 시즌3",
-      description: "괴물로 변해가는 세상에서 살아남기 위한 사투",
-      thumbnailUrl: "",
-      backdropUrl: "",
-      genre: "Horror",
-      runningTime: 50,
-      ranking: null,
-      status: "EXPIRING",
-      availability: [
-        {
-          ottId: 1,
-          logoUrl: "https://example.com/netflix_logo.png",
-          releaseDate: null,
-          expireDate: "2025-12-15",
-        },
-      ],
-      wishlistId: null,
-    },
-    {
-      programId: 12,
-      title: "이상한 변호사 우영우",
-      description: "자폐 스펙트럼을 가진 천재 변호사의 성장 드라마",
-      thumbnailUrl: "",
-      backdropUrl: "",
-      genre: "Drama",
-      runningTime: 60,
-      ranking: null,
-      status: "EXPIRING",
-      availability: [
-        {
-          ottId: 1,
-          logoUrl: "https://example.com/netflix_logo.png",
-          releaseDate: null,
-          expireDate: "2025-12-20",
-        },
-      ],
-      wishlistId: null,
-    },
-    {
-      programId: 13,
-      title: "술꾼도시여자들 시즌2",
-      description: "서울에서 살아가는 세 여자의 우정과 사랑",
-      thumbnailUrl: "",
-      backdropUrl: "",
-      genre: "Comedy",
-      runningTime: 45,
-      ranking: null,
-      status: "EXPIRING",
-      availability: [
-        {
-          ottId: 2,
-          logoUrl: "https://example.com/wavve_logo.png",
-          releaseDate: null,
-          expireDate: "2025-12-10",
-        },
-      ],
-      wishlistId: null,
-    },
-    {
-      programId: 14,
-      title: "D.P. 시즌2",
-      description: "군 탈영병을 추적하는 헌병대원들의 이야기",
-      thumbnailUrl: "",
-      backdropUrl: "",
-      genre: "Drama",
-      runningTime: 50,
-      ranking: null,
-      status: "EXPIRING",
-      availability: [
-        {
-          ottId: 1,
-          logoUrl: "https://example.com/netflix_logo.png",
-          releaseDate: null,
-          expireDate: "2025-11-30",
-        },
-      ],
-      wishlistId: null,
-    },
-    {
-      programId: 15,
-      title: "나의 해방일지",
-      description: "삶의 해방을 꿈꾸는 세 남매의 일상 드라마",
-      thumbnailUrl: "",
-      backdropUrl: "",
-      genre: "Drama",
-      runningTime: 55,
-      ranking: null,
-      status: "EXPIRING",
-      availability: [
-        {
-          ottId: 1,
-          logoUrl: "https://example.com/netflix_logo.png",
-          releaseDate: null,
-          expireDate: "2025-12-05",
-        },
-      ],
-      wishlistId: null,
-    },
-  ];
+  // const DEMO_DATA: Program[] = [
+  //   // 인기작 (ranking 있음)
+  //   {
+  //     programId: 1,
+  //     title: "더 글로리",
+  //     description:
+  //       "학교 폭력의 피해자가 18년간 치밀하게 준비한 복수극을 그린 드라마",
+  //     thumbnailUrl: "",
+  //     backdropUrl: "",
+  //     genre: "Drama",
+  //     runningTime: 50,
+  //     ranking: 1,
+  //     status: null,
+  //     availability: [
+  //       {
+  //         ottId: 1,
+  //         logoUrl: "https://example.com/netflix_logo.png",
+  //         releaseDate: null,
+  //         expireDate: null,
+  //       },
+  //     ],
+  //     wishlistId: null,
+  //   },
+  //   {
+  //     programId: 2,
+  //     title: "피지컬: 100",
+  //     description: "100명의 참가자가 최고의 신체 능력을 겨루는 서바이벌 예능",
+  //     thumbnailUrl: "",
+  //     backdropUrl: "",
+  //     genre: "Reality",
+  //     runningTime: 60,
+  //     ranking: 2,
+  //     status: null,
+  //     availability: [
+  //       {
+  //         ottId: 1,
+  //         logoUrl: "https://example.com/netflix_logo.png",
+  //         releaseDate: null,
+  //         expireDate: null,
+  //       },
+  //     ],
+  //     wishlistId: null,
+  //   },
+  //   {
+  //     programId: 3,
+  //     title: "환승연애3",
+  //     description: "헤어진 연인들이 새로운 사랑을 찾아가는 연애 리얼리티",
+  //     thumbnailUrl: "",
+  //     backdropUrl: "",
+  //     genre: "Reality",
+  //     runningTime: 70,
+  //     ranking: 1,
+  //     status: null,
+  //     availability: [
+  //       {
+  //         ottId: 2,
+  //         logoUrl: "https://example.com/wavve_logo.png",
+  //         releaseDate: null,
+  //         expireDate: null,
+  //       },
+  //     ],
+  //     wishlistId: null,
+  //   },
+  //   {
+  //     programId: 4,
+  //     title: "이재, 곧 죽습니다",
+  //     description:
+  //       "죽음을 앞둔 재벌 3세가 자신의 삶을 되돌아보는 판타지 드라마",
+  //     thumbnailUrl: "",
+  //     backdropUrl: "",
+  //     genre: "Fantasy",
+  //     runningTime: 55,
+  //     ranking: 3,
+  //     status: null,
+  //     availability: [
+  //       {
+  //         ottId: 1,
+  //         logoUrl: "https://example.com/netflix_logo.png",
+  //         releaseDate: null,
+  //         expireDate: null,
+  //       },
+  //     ],
+  //     wishlistId: null,
+  //   },
+  //   {
+  //     programId: 5,
+  //     title: "오징어 게임 시즌2",
+  //     description: "456억 원의 상금을 건 서바이벌 게임의 두 번째 시즌",
+  //     thumbnailUrl: "",
+  //     backdropUrl: "",
+  //     genre: "Thriller",
+  //     runningTime: 60,
+  //     ranking: 4,
+  //     status: null,
+  //     availability: [
+  //       {
+  //         ottId: 1,
+  //         logoUrl: "https://example.com/netflix_logo.png",
+  //         releaseDate: null,
+  //         expireDate: null,
+  //       },
+  //     ],
+  //     wishlistId: null,
+  //   },
+  //   // 공개 예정작 (status: UPCOMING)
+  //   {
+  //     programId: 6,
+  //     title: "킹덤 시즌3",
+  //     description: "조선시대 좀비 사극의 세 번째 시즌",
+  //     thumbnailUrl: "",
+  //     backdropUrl: "",
+  //     genre: "Horror",
+  //     runningTime: 50,
+  //     ranking: null,
+  //     status: "UPCOMING",
+  //     availability: [
+  //       {
+  //         ottId: 1,
+  //         logoUrl: "https://example.com/netflix_logo.png",
+  //         releaseDate: "2025-04-15",
+  //         expireDate: null,
+  //       },
+  //     ],
+  //     wishlistId: null,
+  //   },
+  //   {
+  //     programId: 7,
+  //     title: "수리남 시즌2",
+  //     description: "남미 마약 조직에 잠입한 사업가의 실화 기반 드라마",
+  //     thumbnailUrl: "",
+  //     backdropUrl: "",
+  //     genre: "Crime",
+  //     runningTime: 55,
+  //     ranking: null,
+  //     status: "UPCOMING",
+  //     availability: [
+  //       {
+  //         ottId: 1,
+  //         logoUrl: "https://example.com/netflix_logo.png",
+  //         releaseDate: "2025-05-20",
+  //         expireDate: null,
+  //       },
+  //     ],
+  //     wishlistId: null,
+  //   },
+  //   {
+  //     programId: 8,
+  //     title: "무빙 시즌2",
+  //     description: "초능력을 숨기고 살아가는 가족들의 이야기",
+  //     thumbnailUrl: "",
+  //     backdropUrl: "",
+  //     genre: "Action",
+  //     runningTime: 60,
+  //     ranking: null,
+  //     status: "UPCOMING",
+  //     availability: [
+  //       {
+  //         ottId: 3,
+  //         logoUrl: "https://example.com/disney_logo.png",
+  //         releaseDate: "2025-06-10",
+  //         expireDate: null,
+  //       },
+  //     ],
+  //     wishlistId: null,
+  //   },
+  //   {
+  //     programId: 9,
+  //     title: "카지노",
+  //     description: "필리핀 카지노를 배경으로 한 범죄 스릴러",
+  //     thumbnailUrl: "",
+  //     backdropUrl: "",
+  //     genre: "Crime",
+  //     runningTime: 50,
+  //     ranking: null,
+  //     status: "UPCOMING",
+  //     availability: [
+  //       {
+  //         ottId: 2,
+  //         logoUrl: "https://example.com/wavve_logo.png",
+  //         releaseDate: "2025-04-25",
+  //         expireDate: null,
+  //       },
+  //     ],
+  //     wishlistId: null,
+  //   },
+  //   {
+  //     programId: 10,
+  //     title: "재벌집 막내아들 시즌2",
+  //     description: "재벌가에 빙의한 남자의 복수극 두 번째 시즌",
+  //     thumbnailUrl: "",
+  //     backdropUrl: "",
+  //     genre: "Fantasy",
+  //     runningTime: 55,
+  //     ranking: null,
+  //     status: "UPCOMING",
+  //     availability: [
+  //       {
+  //         ottId: 2,
+  //         logoUrl: "https://example.com/wavve_logo.png",
+  //         releaseDate: "2025-07-01",
+  //         expireDate: null,
+  //       },
+  //     ],
+  //     wishlistId: null,
+  //   },
+  //   // 종료 예정작 (status: EXPIRING)
+  //   {
+  //     programId: 11,
+  //     title: "스위트홈 시즌3",
+  //     description: "괴물로 변해가는 세상에서 살아남기 위한 사투",
+  //     thumbnailUrl: "",
+  //     backdropUrl: "",
+  //     genre: "Horror",
+  //     runningTime: 50,
+  //     ranking: null,
+  //     status: "EXPIRING",
+  //     availability: [
+  //       {
+  //         ottId: 1,
+  //         logoUrl: "https://example.com/netflix_logo.png",
+  //         releaseDate: null,
+  //         expireDate: "2025-12-15",
+  //       },
+  //     ],
+  //     wishlistId: null,
+  //   },
+  //   {
+  //     programId: 12,
+  //     title: "이상한 변호사 우영우",
+  //     description: "자폐 스펙트럼을 가진 천재 변호사의 성장 드라마",
+  //     thumbnailUrl: "",
+  //     backdropUrl: "",
+  //     genre: "Drama",
+  //     runningTime: 60,
+  //     ranking: null,
+  //     status: "EXPIRING",
+  //     availability: [
+  //       {
+  //         ottId: 1,
+  //         logoUrl: "https://example.com/netflix_logo.png",
+  //         releaseDate: null,
+  //         expireDate: "2025-12-20",
+  //       },
+  //     ],
+  //     wishlistId: null,
+  //   },
+  //   {
+  //     programId: 13,
+  //     title: "술꾼도시여자들 시즌2",
+  //     description: "서울에서 살아가는 세 여자의 우정과 사랑",
+  //     thumbnailUrl: "",
+  //     backdropUrl: "",
+  //     genre: "Comedy",
+  //     runningTime: 45,
+  //     ranking: null,
+  //     status: "EXPIRING",
+  //     availability: [
+  //       {
+  //         ottId: 2,
+  //         logoUrl: "https://example.com/wavve_logo.png",
+  //         releaseDate: null,
+  //         expireDate: "2025-12-10",
+  //       },
+  //     ],
+  //     wishlistId: null,
+  //   },
+  //   {
+  //     programId: 14,
+  //     title: "D.P. 시즌2",
+  //     description: "군 탈영병을 추적하는 헌병대원들의 이야기",
+  //     thumbnailUrl: "",
+  //     backdropUrl: "",
+  //     genre: "Drama",
+  //     runningTime: 50,
+  //     ranking: null,
+  //     status: "EXPIRING",
+  //     availability: [
+  //       {
+  //         ottId: 1,
+  //         logoUrl: "https://example.com/netflix_logo.png",
+  //         releaseDate: null,
+  //         expireDate: "2025-11-30",
+  //       },
+  //     ],
+  //     wishlistId: null,
+  //   },
+  //   {
+  //     programId: 15,
+  //     title: "나의 해방일지",
+  //     description: "삶의 해방을 꿈꾸는 세 남매의 일상 드라마",
+  //     thumbnailUrl: "",
+  //     backdropUrl: "",
+  //     genre: "Drama",
+  //     runningTime: 55,
+  //     ranking: null,
+  //     status: "EXPIRING",
+  //     availability: [
+  //       {
+  //         ottId: 1,
+  //         logoUrl: "https://example.com/netflix_logo.png",
+  //         releaseDate: null,
+  //         expireDate: "2025-12-05",
+  //       },
+  //     ],
+  //     wishlistId: null,
+  //   },
+  // ];
 
   const { addToWishlist } = useWishlist();
   const [activeTab, setActiveTab] = useState<ContentTab>("popular");
@@ -369,13 +352,25 @@ const MainPage: React.FC = () => {
     const fetchPrograms = async () => {
       try {
         setLoading(true);
-        // TODO: API 연동 시 아래 주석 해제
-        // const response = await apiClient.get<Program[]>("/programs");
-        // setPrograms(response.data);
+
+        // 실제 API 호출
+        const [popularRes, upcomingRes, expiringRes] = await Promise.all([
+          searchPrograms({ sort: "RANKING", size: 20 }), // 인기작
+          searchPrograms({ status: "UPCOMING", size: 20 }), // 공개 예정
+          searchPrograms({ status: "EXPIRING", size: 20 }), // 종료 예정
+        ]);
+
+        // API 응답 통합
+        const allPrograms = [
+          ...popularRes.results,
+          ...upcomingRes.results,
+          ...expiringRes.results,
+        ];
+        setPrograms(allPrograms);
 
         // DEMO 데이터 사용
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        setPrograms(DEMO_DATA);
+        // await new Promise((resolve) => setTimeout(resolve, 500));
+        // setPrograms(DEMO_DATA);
         setError(null);
       } catch (err) {
         console.error("콘텐츠 로딩 실패:", err);
@@ -450,7 +445,9 @@ const MainPage: React.FC = () => {
   // 플랫폼별 프로그램 필터링
   const getProgramsByOtt = (ottId: number): Program[] => {
     return getCurrentShows().filter((program) =>
-      program.availability.some((avail) => avail.ottId === ottId)
+      program.availability.some(
+        (avail: { ottId: number }) => avail.ottId === ottId
+      )
     );
   };
 
@@ -893,21 +890,7 @@ const MainPage: React.FC = () => {
       {/* Modal - TODO: ContentModal도 Program 타입에 맞게 수정 필요 */}
       {selectedProgram && (
         <ContentModal
-          content={{
-            id: selectedProgram.programId,
-            title: selectedProgram.title,
-            image: selectedProgram.thumbnailUrl,
-            platform: getOttName(selectedProgram.availability[0]?.ottId || 0),
-            releaseDate: getDisplayDate(selectedProgram),
-            genres: [selectedProgram.genre],
-            description: selectedProgram.description,
-            availablePlatforms: selectedProgram.availability.map((a) =>
-              getOttName(a.ottId)
-            ),
-            runtime: selectedProgram.runningTime
-              ? `${selectedProgram.runningTime}분`
-              : undefined,
-          }}
+          content={selectedProgram}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           onAddToWishlist={() => handleAddToWishlist(selectedProgram)}

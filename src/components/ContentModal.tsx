@@ -1,24 +1,12 @@
 import React from "react";
+import { type Program } from "../api/programService";
 import "../styles/ContentModal.css";
 
-// 모달에서 사용할 콘텐츠 타입 정의
-interface ModalContent {
-  id: number;
-  title: string;
-  image: string;
-  platform: string;
-  releaseDate?: string;
-  genres: string[];
-  description: string;
-  availablePlatforms: string[];
-  runtime?: string;
-}
-
 interface ContentModalProps {
-  content: ModalContent;
+  content: Program; // ← Content 대신 Program 사용
   isOpen: boolean;
   onClose: () => void;
-  onAddToWishlist: () => void; // 인자 없이 호출
+  onAddToWishlist: () => void;
 }
 
 const ContentModal: React.FC<ContentModalProps> = ({
@@ -49,12 +37,31 @@ const ContentModal: React.FC<ContentModalProps> = ({
     }
   };
 
+  // OTT ID로 이름 변환
+  const getOttName = (ottId: number): string => {
+    const ottNames: { [key: number]: string } = {
+      1: "NETFLIX",
+      2: "WAVVE",
+      3: "DISNEY_PLUS",
+    };
+    return ottNames[ottId] || "UNKNOWN";
+  };
+
   const formatMetaInfo = () => {
     const parts = [];
-    if (content.releaseDate) parts.push(content.releaseDate);
-    if (content.genres && content.genres.length > 0)
-      parts.push(content.genres.join(", "));
-    if (content.runtime) parts.push(content.runtime);
+
+    // 날짜 정보
+    const releaseDate = content.availability[0]?.releaseDate;
+    const expireDate = content.availability[0]?.expireDate;
+    if (releaseDate) parts.push(releaseDate);
+    else if (expireDate) parts.push(`${expireDate}까지`);
+
+    // 장르
+    if (content.genre) parts.push(content.genre);
+
+    // 러닝타임
+    if (content.runningTime) parts.push(`${content.runningTime}분`);
+
     return parts.join(" · ");
   };
 
@@ -76,13 +83,13 @@ const ContentModal: React.FC<ContentModalProps> = ({
             <div
               className="modal-poster"
               style={{
-                backgroundImage: content.image
-                  ? `url(${content.image})`
+                backgroundImage: content.thumbnailUrl
+                  ? `url(${content.thumbnailUrl})`
                   : undefined,
-                backgroundColor: content.image ? undefined : "#cbd5e0",
+                backgroundColor: content.thumbnailUrl ? undefined : "#cbd5e0",
               }}
             >
-              {!content.image && (
+              {!content.thumbnailUrl && (
                 <span style={{ color: "#6b7280" }}>이미지 없음</span>
               )}
             </div>
@@ -102,26 +109,23 @@ const ContentModal: React.FC<ContentModalProps> = ({
                 이 작품을 볼 수 있는 OTT
               </h3>
               <div className="modal-platforms-list">
-                {content.availablePlatforms &&
-                content.availablePlatforms.length > 0 ? (
-                  content.availablePlatforms.map((platform, index) => (
-                    <div
-                      key={index}
-                      className={`modal-platform-logo ${getPlatformLogoClass(
-                        platform
-                      )}`}
-                    >
-                      {platform.replace("_", " ").toUpperCase()}
-                    </div>
-                  ))
-                ) : (
-                  <div
-                    className={`modal-platform-logo ${getPlatformLogoClass(
-                      content.platform
-                    )}`}
-                  >
-                    {content.platform.replace("_", " ").toUpperCase()}
-                  </div>
+                {content.availability.map(
+                  (
+                    avail: { ottId: number },
+                    index: React.Key | null | undefined
+                  ) => {
+                    const platformName = getOttName(avail.ottId);
+                    return (
+                      <div
+                        key={index}
+                        className={`modal-platform-logo ${getPlatformLogoClass(
+                          platformName
+                        )}`}
+                      >
+                        {platformName.replace("_", " ").toUpperCase()}
+                      </div>
+                    );
+                  }
                 )}
               </div>
             </div>

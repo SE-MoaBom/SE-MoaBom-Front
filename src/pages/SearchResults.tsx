@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import ContentModal from "../components/ContentModal";
-import { type Content } from "../api/contentService";
+import { searchPrograms, type Program } from "../api/programService";
+import { useWishlist } from "../contexts/WishlistContext";
 import "../styles/searchResults.css";
 
 const SearchResultsPage: React.FC = () => {
@@ -10,31 +11,58 @@ const SearchResultsPage: React.FC = () => {
   const navigate = useNavigate();
   const query = searchParams.get("q") || "";
 
-  const [searchResults] = useState<Content[]>([]);
-  const [selectedContent, setSelectedContent] = useState<Content | null>(null);
+  const [searchResults, setSearchResults] = useState<Program[]>([]);
+  const [selectedContent, setSelectedContent] = useState<Program | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
+  const { addToWishlist } = useWishlist();
+
+  // 검색 실행
   useEffect(() => {
-    // TODO: API 호출로 변경
-    // 임시: localStorage나 전역 상태에서 데이터 가져오기
-    const mockSearch = () => {
-      // 여기서는 MainPage의 DEMO_DATA를 사용할 수 없으므로
-      // 실제로는 API 호출이나 전역 상태 관리 필요
+    const performSearch = async () => {
+      if (!query.trim()) {
+        setSearchResults([]);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const result = await searchPrograms({
+          keyword: query,
+          status: "ALL",
+          size: 50,
+        });
+        setSearchResults(result.results);
+      } catch (error) {
+        console.error("검색 실패:", error);
+        setSearchResults([]);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    mockSearch();
+    performSearch();
   }, [query]);
 
-  const handleContentClick = (content: Content) => {
-    setSelectedContent(content);
+  // 콘텐츠 클릭 핸들러
+  const handleContentClick = (program: Program) => {
+    setSelectedContent(program);
     setIsModalOpen(true);
   };
 
+  // 모달 닫기 핸들러
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedContent(null);
   };
 
+  // 찜하기 핸들러
+  const handleAddToWishlist = (program: Program) => {
+    addToWishlist(program.programId, program.title);
+  };
+
+  // 검색어 하이라이트
   const highlightMatch = (text: string, query: string) => {
     if (!query.trim()) return text;
     const parts = text.split(new RegExp(`(${query})`, "gi"));
@@ -47,6 +75,16 @@ const SearchResultsPage: React.FC = () => {
         part
       )
     );
+  };
+
+  // 날짜 표시 포맷
+  const getDisplayDate = (program: Program): string => {
+    if (program.status === "UPCOMING") {
+      return program.availability[0]?.releaseDate || "";
+    } else if (program.status === "EXPIRING") {
+      return program.availability[0]?.expireDate || "";
+    }
+    return "현재 방영중";
   };
 
   return (
@@ -64,31 +102,41 @@ const SearchResultsPage: React.FC = () => {
             </button>
           </div>
 
-          {searchResults.length > 0 ? (
+          {isLoading ? (
+            <div className="loading-container">
+              <div className="loading-spinner">검색 중...</div>
+            </div>
+          ) : searchResults.length > 0 ? (
             <div className="search-results-grid">
-              {searchResults.map((show) => (
-                <div key={show.id} className="content-card">
+              {searchResults.map((program) => (
+                <div key={program.programId} className="content-card">
                   <div
                     className="poster-container"
-                    onClick={() => handleContentClick(show)}
+                    onClick={() => handleContentClick(program)}
+                    style={{ cursor: "pointer" }}
                   >
                     <div
                       className="poster-image"
                       style={{
-                        backgroundImage: show.image
-                          ? `url(${show.image})`
+                        backgroundImage: program.thumbnailUrl
+                          ? `url(${program.thumbnailUrl})`
                           : undefined,
-                        backgroundColor: show.image ? undefined : "#ccc",
+                        backgroundColor: program.thumbnailUrl
+                          ? undefined
+                          : "#ccc",
                       }}
                     >
-                      {!show.image && <span>이미지 없음</span>}
+                      {!program.thumbnailUrl && <span>이미지 없음</span>}
                     </div>
                   </div>
                   <h4 className="content-title">
-                    {highlightMatch(show.title, query)}
+                    {highlightMatch(program.title, query)}
                   </h4>
-                  <div className="content-date">{show.releaseDate}</div>
-                  <button className="add-button">
+                  <div className="content-date">{getDisplayDate(program)}</div>
+                  <button
+                    className="add-button"
+                    onClick={() => handleAddToWishlist(program)}
+                  >
                     <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
                       <path
                         d="M8 4V16M2 10H14"
@@ -110,11 +158,13 @@ const SearchResultsPage: React.FC = () => {
         </div>
       </main>
 
+      {/* 변환 함수 없이 바로 전달 */}
       {selectedContent && (
         <ContentModal
           content={selectedContent}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
+          onAddToWishlist={() => handleAddToWishlist(selectedContent)}
         />
       )}
     </div>
