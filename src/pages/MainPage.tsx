@@ -7,7 +7,7 @@ import { useWishlist } from "../contexts/WishlistContext";
 import {
   searchPrograms,
   type Program,
-  type ProgramAvailability,
+  // type ProgramAvailability,
 } from "../api/programService";
 
 type ContentTab = "popular" | "upcoming" | "ending";
