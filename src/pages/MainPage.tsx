@@ -9,6 +9,7 @@ import {
   type Program,
   // type ProgramAvailability,
 } from "../api/programService";
+import BottomNavigation from "../components/BottomNavigation";
 
 type ContentTab = "popular" | "upcoming" | "ending";
 
@@ -896,6 +897,7 @@ const MainPage: React.FC = () => {
           onAddToWishlist={() => handleAddToWishlist(selectedProgram)}
         />
       )}
+      <BottomNavigation />
     </div>
   );
 };

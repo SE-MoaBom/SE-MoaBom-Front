@@ -10,6 +10,7 @@ import {
   type Subscription,
 } from "../api/subscriptionService";
 import "../styles/subscribePage.css";
+import BottomNavigation from "../components/BottomNavigation";
 
 interface NewSubscription {
   ottID: number;
@@ -400,6 +401,7 @@ const SubscribePage: React.FC = () => {
           </div>
         )}
       </main>
+      <BottomNavigation />
     </div>
   );
 };

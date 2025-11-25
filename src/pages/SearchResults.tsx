@@ -5,6 +5,7 @@ import ContentModal from "../components/ContentModal";
 import { searchPrograms, type Program } from "../api/programService";
 import { useWishlist } from "../contexts/WishlistContext";
 import "../styles/searchResults.css";
+import BottomNavigation from "../components/BottomNavigation";
 
 const SearchResultsPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -167,6 +168,7 @@ const SearchResultsPage: React.FC = () => {
           onAddToWishlist={() => handleAddToWishlist(selectedContent)}
         />
       )}
+      <BottomNavigation />
     </div>
   );
 };

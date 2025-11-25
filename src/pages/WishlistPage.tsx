@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import { useWishlist } from "../contexts/WishlistContext";
 
 import "../styles/wishlistPage.css";
+import BottomNavigation from "../components/BottomNavigation";
 
 const TrashIcon = () => (
   <svg
@@ -96,6 +97,7 @@ const WishlistPage: React.FC = () => {
           </div>
         )}
       </main>
+      <BottomNavigation />
     </div>
   );
 };

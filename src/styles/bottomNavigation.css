@@ -1,0 +1,112 @@
+/* Bottom Navigation - 모바일 전용 */
+.bottom-navigation {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  z-index: 1000;
+  padding: 8px 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.bottom-nav-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #6b7280;
+  transition: color 0.2s;
+  padding: 4px 8px;
+  min-width: 60px;
+  flex: 1;
+}
+
+.bottom-nav-item.active {
+  color: #000000;
+}
+
+.bottom-nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 4px;
+}
+
+.bottom-nav-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.bottom-nav-label {
+  font-family: "Inter";
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 14px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* 모바일에서만 표시 */
+@media (max-width: 768px) {
+  .bottom-navigation {
+    display: block;
+  }
+
+  /* 메인 콘텐츠에 하단 네비게이션 공간 확보 */
+  .main-page,
+  .search-results-page,
+  .subscribe-page,
+  .page-wrapper {
+    padding-bottom: 70px;
+  }
+
+  /* 헤더 네비게이션 숨기기 */
+  .header .nav-container {
+    display: none;
+  }
+
+  /* 헤더를 심플하게 - 로고만 중앙에 */
+  .header-container {
+    justify-content: center;
+  }
+
+  .header .logo-container {
+    margin: 0 auto;
+  }
+}
+
+/* 아주 작은 화면에서 라벨 크기 조정 */
+@media (max-width: 360px) {
+  .bottom-nav-label {
+    font-size: 10px;
+  }
+
+  .bottom-nav-item {
+    padding: 4px 4px;
+    min-width: 50px;
+  }
+
+  .bottom-nav-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .bottom-nav-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+}
