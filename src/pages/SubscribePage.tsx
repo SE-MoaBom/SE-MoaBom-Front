@@ -9,10 +9,10 @@ import {
   deleteSubscription,
   type Subscription,
 } from "../api/subscriptionService";
-import "../styles/SubscribePage.css";
+import "../styles/subscribePage.css";
 
 interface NewSubscription {
-  ottId: number;
+  ottID: number;
   startDate: string;
   endDate: string;
 }
@@ -23,7 +23,7 @@ const SubscribePage: React.FC = () => {
   const [mySubscriptions, setMySubscriptions] = useState<Subscription[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newSubscription, setNewSubscription] = useState<NewSubscription>({
-    ottId: 0,
+    ottID: 0,
     startDate: new Date().toISOString().split("T")[0],
     endDate: "",
   });
@@ -69,7 +69,7 @@ const SubscribePage: React.FC = () => {
 
   // 구독 추가
   const handleAddSubscription = async () => {
-    if (newSubscription.ottId === 0) {
+    if (newSubscription.ottID === 0) {
       setError("OTT를 선택해주세요.");
       return;
     }
@@ -78,21 +78,22 @@ const SubscribePage: React.FC = () => {
       return;
     }
 
-    // 이미 구독 중인 OTT인지 확인
-    const alreadySubscribed = mySubscriptions.find(
-      (sub) => sub.ottId === newSubscription.ottId
-    );
-    if (alreadySubscribed) {
-      setError("이미 구독 중인 OTT입니다.");
-      return;
-    }
+    // 생각해보니 OTT 중복 구독 가능성...있을지도
+    // // 이미 구독 중인 OTT인지 확인
+    // const alreadySubscribed = mySubscriptions.find(
+    //   (sub) => sub.ottID === newSubscription.ottID
+    // );
+    // if (alreadySubscribed) {
+    //   setError("이미 구독 중인 OTT입니다.");
+    //   return;
+    // }
 
     setIsLoading(true);
     setError("");
 
     try {
       await createSubscription({
-        ottId: newSubscription.ottId,
+        ottID: newSubscription.ottID,
         startDate: newSubscription.startDate,
         endDate: newSubscription.endDate || null,
       });
@@ -103,7 +104,7 @@ const SubscribePage: React.FC = () => {
       // 모달 닫기 및 초기화
       setShowAddModal(false);
       setNewSubscription({
-        ottId: 0,
+        ottID: 0,
         startDate: new Date().toISOString().split("T")[0],
         endDate: "",
       });
@@ -115,7 +116,7 @@ const SubscribePage: React.FC = () => {
   };
 
   // 구독 수정
-  const handleEditSubscription = async (subscribeId: number) => {
+  const handleEditSubscription = async (subscribeID: number) => {
     if (!editData.startDate) {
       setError("구독 시작일을 입력해주세요.");
       return;
@@ -125,7 +126,7 @@ const SubscribePage: React.FC = () => {
     setError("");
 
     try {
-      await updateSubscription(subscribeId, {
+      await updateSubscription(subscribeID, {
         startDate: editData.startDate,
         endDate: editData.endDate || null,
       });
@@ -140,7 +141,7 @@ const SubscribePage: React.FC = () => {
   };
 
   // 구독 삭제
-  const handleDeleteSubscription = async (subscribeId: number) => {
+  const handleDeleteSubscription = async (subscribeID: number) => {
     if (!confirm("정말 삭제하시겠습니까?")) {
       return;
     }
@@ -148,7 +149,7 @@ const SubscribePage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await deleteSubscription(subscribeId);
+      await deleteSubscription(subscribeID);
       await fetchMySubscriptions();
     } catch (err: any) {
       setError("구독 삭제 중 오류가 발생했습니다.");
@@ -159,7 +160,7 @@ const SubscribePage: React.FC = () => {
 
   // 수정 모드 시작
   const startEditing = (subscription: Subscription) => {
-    setEditingId(subscription.subscribeId);
+    setEditingId(subscription.subscribeID);
     setEditData({
       startDate: subscription.startDate,
       endDate: subscription.endDate || "",
@@ -168,7 +169,7 @@ const SubscribePage: React.FC = () => {
 
   // 총 월 구독료 계산
   const totalMonthlyPrice = mySubscriptions.reduce((sum, sub) => {
-    const ott = ottList.find((o) => o.ottId === sub.ottId);
+    const ott = ottList.find((o) => o.ottId === sub.ottID);
     return sum + (ott?.price || 0);
   }, 0);
 
@@ -207,13 +208,13 @@ const SubscribePage: React.FC = () => {
           <div className="subscription-list">
             {mySubscriptions.map((subscription) => {
               const ottInfo = ottList.find(
-                (o) => o.ottId === subscription.ottId
+                (o) => o.ottId === subscription.ottID
               );
-              const isEditing = editingId === subscription.subscribeId;
+              const isEditing = editingId === subscription.subscribeID;
 
               return (
                 <div
-                  key={subscription.subscribeId}
+                  key={subscription.subscribeID}
                   className="subscription-card"
                 >
                   <div className="subscription-info">
@@ -260,7 +261,7 @@ const SubscribePage: React.FC = () => {
                         <button
                           className="save-btn"
                           onClick={() =>
-                            handleEditSubscription(subscription.subscribeId)
+                            handleEditSubscription(subscription.subscribeID)
                           }
                           disabled={isLoading}
                         >
@@ -292,7 +293,7 @@ const SubscribePage: React.FC = () => {
                         <button
                           className="delete-btn"
                           onClick={() =>
-                            handleDeleteSubscription(subscription.subscribeId)
+                            handleDeleteSubscription(subscription.subscribeID)
                           }
                           disabled={isLoading}
                         >
@@ -325,11 +326,11 @@ const SubscribePage: React.FC = () => {
                 <div className="form-group">
                   <label>OTT 선택</label>
                   <select
-                    value={newSubscription.ottId}
+                    value={newSubscription.ottID}
                     onChange={(e) =>
                       setNewSubscription({
                         ...newSubscription,
-                        ottId: Number(e.target.value),
+                        ottID: Number(e.target.value),
                       })
                     }
                     className="select-input"

@@ -2,8 +2,8 @@ import apiClient from "./client";
 
 // 구독 정보 타입
 export interface Subscription {
-  subscribeId: number;
-  ottId: number;
+  subscribeID: number;
+  ottID: number;
   ottName: string;
   logoUrl: string;
   startDate: string;
@@ -12,7 +12,7 @@ export interface Subscription {
 
 // 구독 등록 요청 타입
 export interface CreateSubscriptionRequest {
-  ottId: number;
+  ottID: number;
   startDate: string;
   endDate: string | null;
 }
