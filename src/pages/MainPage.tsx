@@ -4,325 +4,26 @@ import ContentModal from "../components/ContentModal";
 import "../styles/mainPage.css";
 import { useNavigate } from "react-router-dom";
 import { useWishlist } from "../contexts/WishlistContext";
-import {
-  searchPrograms,
-  type Program,
-  // type ProgramAvailability,
-} from "../api/programService";
+import { searchPrograms, type Program } from "../api/programService";
 import BottomNavigation from "../components/BottomNavigation";
 
 type ContentTab = "popular" | "upcoming" | "ending";
 
-const MainPage: React.FC = () => {
-  // DEMO 데이터 - API 응답 형식에 맞춤
-  // const DEMO_DATA: Program[] = [
-  //   // 인기작 (ranking 있음)
-  //   {
-  //     programId: 1,
-  //     title: "더 글로리",
-  //     description:
-  //       "학교 폭력의 피해자가 18년간 치밀하게 준비한 복수극을 그린 드라마",
-  //     thumbnailUrl: "",
-  //     backdropUrl: "",
-  //     genre: "Drama",
-  //     runningTime: 50,
-  //     ranking: 1,
-  //     status: null,
-  //     availability: [
-  //       {
-  //         ottId: 1,
-  //         logoUrl: "https://example.com/netflix_logo.png",
-  //         releaseDate: null,
-  //         expireDate: null,
-  //       },
-  //     ],
-  //     wishlistId: null,
-  //   },
-  //   {
-  //     programId: 2,
-  //     title: "피지컬: 100",
-  //     description: "100명의 참가자가 최고의 신체 능력을 겨루는 서바이벌 예능",
-  //     thumbnailUrl: "",
-  //     backdropUrl: "",
-  //     genre: "Reality",
-  //     runningTime: 60,
-  //     ranking: 2,
-  //     status: null,
-  //     availability: [
-  //       {
-  //         ottId: 1,
-  //         logoUrl: "https://example.com/netflix_logo.png",
-  //         releaseDate: null,
-  //         expireDate: null,
-  //       },
-  //     ],
-  //     wishlistId: null,
-  //   },
-  //   {
-  //     programId: 3,
-  //     title: "환승연애3",
-  //     description: "헤어진 연인들이 새로운 사랑을 찾아가는 연애 리얼리티",
-  //     thumbnailUrl: "",
-  //     backdropUrl: "",
-  //     genre: "Reality",
-  //     runningTime: 70,
-  //     ranking: 1,
-  //     status: null,
-  //     availability: [
-  //       {
-  //         ottId: 2,
-  //         logoUrl: "https://example.com/wavve_logo.png",
-  //         releaseDate: null,
-  //         expireDate: null,
-  //       },
-  //     ],
-  //     wishlistId: null,
-  //   },
-  //   {
-  //     programId: 4,
-  //     title: "이재, 곧 죽습니다",
-  //     description:
-  //       "죽음을 앞둔 재벌 3세가 자신의 삶을 되돌아보는 판타지 드라마",
-  //     thumbnailUrl: "",
-  //     backdropUrl: "",
-  //     genre: "Fantasy",
-  //     runningTime: 55,
-  //     ranking: 3,
-  //     status: null,
-  //     availability: [
-  //       {
-  //         ottId: 1,
-  //         logoUrl: "https://example.com/netflix_logo.png",
-  //         releaseDate: null,
-  //         expireDate: null,
-  //       },
-  //     ],
-  //     wishlistId: null,
-  //   },
-  //   {
-  //     programId: 5,
-  //     title: "오징어 게임 시즌2",
-  //     description: "456억 원의 상금을 건 서바이벌 게임의 두 번째 시즌",
-  //     thumbnailUrl: "",
-  //     backdropUrl: "",
-  //     genre: "Thriller",
-  //     runningTime: 60,
-  //     ranking: 4,
-  //     status: null,
-  //     availability: [
-  //       {
-  //         ottId: 1,
-  //         logoUrl: "https://example.com/netflix_logo.png",
-  //         releaseDate: null,
-  //         expireDate: null,
-  //       },
-  //     ],
-  //     wishlistId: null,
-  //   },
-  //   // 공개 예정작 (status: UPCOMING)
-  //   {
-  //     programId: 6,
-  //     title: "킹덤 시즌3",
-  //     description: "조선시대 좀비 사극의 세 번째 시즌",
-  //     thumbnailUrl: "",
-  //     backdropUrl: "",
-  //     genre: "Horror",
-  //     runningTime: 50,
-  //     ranking: null,
-  //     status: "UPCOMING",
-  //     availability: [
-  //       {
-  //         ottId: 1,
-  //         logoUrl: "https://example.com/netflix_logo.png",
-  //         releaseDate: "2025-04-15",
-  //         expireDate: null,
-  //       },
-  //     ],
-  //     wishlistId: null,
-  //   },
-  //   {
-  //     programId: 7,
-  //     title: "수리남 시즌2",
-  //     description: "남미 마약 조직에 잠입한 사업가의 실화 기반 드라마",
-  //     thumbnailUrl: "",
-  //     backdropUrl: "",
-  //     genre: "Crime",
-  //     runningTime: 55,
-  //     ranking: null,
-  //     status: "UPCOMING",
-  //     availability: [
-  //       {
-  //         ottId: 1,
-  //         logoUrl: "https://example.com/netflix_logo.png",
-  //         releaseDate: "2025-05-20",
-  //         expireDate: null,
-  //       },
-  //     ],
-  //     wishlistId: null,
-  //   },
-  //   {
-  //     programId: 8,
-  //     title: "무빙 시즌2",
-  //     description: "초능력을 숨기고 살아가는 가족들의 이야기",
-  //     thumbnailUrl: "",
-  //     backdropUrl: "",
-  //     genre: "Action",
-  //     runningTime: 60,
-  //     ranking: null,
-  //     status: "UPCOMING",
-  //     availability: [
-  //       {
-  //         ottId: 3,
-  //         logoUrl: "https://example.com/disney_logo.png",
-  //         releaseDate: "2025-06-10",
-  //         expireDate: null,
-  //       },
-  //     ],
-  //     wishlistId: null,
-  //   },
-  //   {
-  //     programId: 9,
-  //     title: "카지노",
-  //     description: "필리핀 카지노를 배경으로 한 범죄 스릴러",
-  //     thumbnailUrl: "",
-  //     backdropUrl: "",
-  //     genre: "Crime",
-  //     runningTime: 50,
-  //     ranking: null,
-  //     status: "UPCOMING",
-  //     availability: [
-  //       {
-  //         ottId: 2,
-  //         logoUrl: "https://example.com/wavve_logo.png",
-  //         releaseDate: "2025-04-25",
-  //         expireDate: null,
-  //       },
-  //     ],
-  //     wishlistId: null,
-  //   },
-  //   {
-  //     programId: 10,
-  //     title: "재벌집 막내아들 시즌2",
-  //     description: "재벌가에 빙의한 남자의 복수극 두 번째 시즌",
-  //     thumbnailUrl: "",
-  //     backdropUrl: "",
-  //     genre: "Fantasy",
-  //     runningTime: 55,
-  //     ranking: null,
-  //     status: "UPCOMING",
-  //     availability: [
-  //       {
-  //         ottId: 2,
-  //         logoUrl: "https://example.com/wavve_logo.png",
-  //         releaseDate: "2025-07-01",
-  //         expireDate: null,
-  //       },
-  //     ],
-  //     wishlistId: null,
-  //   },
-  //   // 종료 예정작 (status: EXPIRING)
-  //   {
-  //     programId: 11,
-  //     title: "스위트홈 시즌3",
-  //     description: "괴물로 변해가는 세상에서 살아남기 위한 사투",
-  //     thumbnailUrl: "",
-  //     backdropUrl: "",
-  //     genre: "Horror",
-  //     runningTime: 50,
-  //     ranking: null,
-  //     status: "EXPIRING",
-  //     availability: [
-  //       {
-  //         ottId: 1,
-  //         logoUrl: "https://example.com/netflix_logo.png",
-  //         releaseDate: null,
-  //         expireDate: "2025-12-15",
-  //       },
-  //     ],
-  //     wishlistId: null,
-  //   },
-  //   {
-  //     programId: 12,
-  //     title: "이상한 변호사 우영우",
-  //     description: "자폐 스펙트럼을 가진 천재 변호사의 성장 드라마",
-  //     thumbnailUrl: "",
-  //     backdropUrl: "",
-  //     genre: "Drama",
-  //     runningTime: 60,
-  //     ranking: null,
-  //     status: "EXPIRING",
-  //     availability: [
-  //       {
-  //         ottId: 1,
-  //         logoUrl: "https://example.com/netflix_logo.png",
-  //         releaseDate: null,
-  //         expireDate: "2025-12-20",
-  //       },
-  //     ],
-  //     wishlistId: null,
-  //   },
-  //   {
-  //     programId: 13,
-  //     title: "술꾼도시여자들 시즌2",
-  //     description: "서울에서 살아가는 세 여자의 우정과 사랑",
-  //     thumbnailUrl: "",
-  //     backdropUrl: "",
-  //     genre: "Comedy",
-  //     runningTime: 45,
-  //     ranking: null,
-  //     status: "EXPIRING",
-  //     availability: [
-  //       {
-  //         ottId: 2,
-  //         logoUrl: "https://example.com/wavve_logo.png",
-  //         releaseDate: null,
-  //         expireDate: "2025-12-10",
-  //       },
-  //     ],
-  //     wishlistId: null,
-  //   },
-  //   {
-  //     programId: 14,
-  //     title: "D.P. 시즌2",
-  //     description: "군 탈영병을 추적하는 헌병대원들의 이야기",
-  //     thumbnailUrl: "",
-  //     backdropUrl: "",
-  //     genre: "Drama",
-  //     runningTime: 50,
-  //     ranking: null,
-  //     status: "EXPIRING",
-  //     availability: [
-  //       {
-  //         ottId: 1,
-  //         logoUrl: "https://example.com/netflix_logo.png",
-  //         releaseDate: null,
-  //         expireDate: "2025-11-30",
-  //       },
-  //     ],
-  //     wishlistId: null,
-  //   },
-  //   {
-  //     programId: 15,
-  //     title: "나의 해방일지",
-  //     description: "삶의 해방을 꿈꾸는 세 남매의 일상 드라마",
-  //     thumbnailUrl: "",
-  //     backdropUrl: "",
-  //     genre: "Drama",
-  //     runningTime: 55,
-  //     ranking: null,
-  //     status: "EXPIRING",
-  //     availability: [
-  //       {
-  //         ottId: 1,
-  //         logoUrl: "https://example.com/netflix_logo.png",
-  //         releaseDate: null,
-  //         expireDate: "2025-12-05",
-  //       },
-  //     ],
-  //     wishlistId: null,
-  //   },
-  // ];
+// OTT ID 매핑
+const OTT_MAPPING: { [key: number]: { name: string; className: string } } = {
+  1: { name: "NETFLIX", className: "netflix" },
+  2: { name: "TVING", className: "tving" },
+  3: { name: "COUPANG_PLAY", className: "coupang" },
+  4: { name: "WAVVE", className: "wavve" },
+  5: { name: "DISNEY_PLUS", className: "disney" },
+  6: { name: "WATCHA", className: "watcha" },
+  7: { name: "LAFTEL", className: "laftel" },
+  8: { name: "U_PLUS_MOBILE_TV", className: "uplus" },
+  9: { name: "AMAZON_PRIME_VIDEO", className: "amazon" },
+  10: { name: "CINEFOX", className: "cinefox" },
+};
 
+const MainPage: React.FC = () => {
   const { addToWishlist } = useWishlist();
   const [activeTab, setActiveTab] = useState<ContentTab>("popular");
   const [heroIndex, setHeroIndex] = useState(0);
@@ -368,10 +69,6 @@ const MainPage: React.FC = () => {
           ...expiringRes.results,
         ];
         setPrograms(allPrograms);
-
-        // DEMO 데이터 사용
-        // await new Promise((resolve) => setTimeout(resolve, 500));
-        // setPrograms(DEMO_DATA);
         setError(null);
       } catch (err) {
         console.error("콘텐츠 로딩 실패:", err);
@@ -397,12 +94,7 @@ const MainPage: React.FC = () => {
 
   // OTT ID로 플랫폼 이름 가져오기
   const getOttName = (ottId: number): string => {
-    const ottNames: { [key: number]: string } = {
-      1: "NETFLIX",
-      2: "WAVVE",
-      3: "DISNEY_PLUS",
-    };
-    return ottNames[ottId] || "UNKNOWN";
+    return OTT_MAPPING[ottId]?.name || "UNKNOWN";
   };
 
   // 현재 탭에 맞는 프로그램 필터링 및 정렬
@@ -446,9 +138,7 @@ const MainPage: React.FC = () => {
   // 플랫폼별 프로그램 필터링
   const getProgramsByOtt = (ottId: number): Program[] => {
     return getCurrentShows().filter((program) =>
-      program.availability.some(
-        (avail: { ottId: number }) => avail.ottId === ottId
-      )
+      program.availability.some((avail) => avail.ottId === ottId)
     );
   };
 
@@ -556,6 +246,9 @@ const MainPage: React.FC = () => {
   }
 
   const heroContent = getHeroContent();
+
+  // 메인 OTT 리스트 (우선 표시할 주요 OTT)
+  const mainOttIds = [1, 4, 5]; // Netflix, Wavve, Disney+
 
   return (
     <div className="main-page">
@@ -715,180 +408,74 @@ const MainPage: React.FC = () => {
 
         {/* Content Section - Platform Separated */}
         <section className="content-section">
-          {/* Netflix Row */}
-          <div className="platform-row">
-            <h3 className="platform-title">
-              <span className="platform-logo">NETFLIX</span>
-            </h3>
-            <div className="content-scroll">
-              {getProgramsByOtt(1)
-                .slice(0, 10)
-                .map((program) => (
-                  <div key={program.programId} className="content-card">
-                    <div
-                      className="poster-container"
-                      onClick={() => handleContentClick(program)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <div
-                        className="poster-image"
-                        style={{
-                          backgroundImage: program.thumbnailUrl
-                            ? `url(${program.thumbnailUrl})`
-                            : undefined,
-                          backgroundColor: program.thumbnailUrl
-                            ? undefined
-                            : "#ccc",
-                        }}
-                      >
-                        {!program.thumbnailUrl && <span>이미지 없음</span>}
-                      </div>
-                    </div>
-                    <h4 className="content-title">{program.title}</h4>
-                    <div className="content-date">
-                      {getDisplayDate(program)}
-                    </div>
-                    <button
-                      className="add-button"
-                      onClick={() => handleAddToWishlist(program)}
-                    >
-                      <svg
-                        width="16"
-                        height="20"
-                        viewBox="0 0 16 20"
-                        fill="none"
-                      >
-                        <path
-                          d="M8 4V16M2 10H14"
-                          stroke="#1F2937"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <span>보고싶은 목록에 추가</span>
-                    </button>
-                  </div>
-                ))}
-            </div>
-          </div>
+          {mainOttIds.map((ottId) => {
+            const ottInfo = OTT_MAPPING[ottId];
+            const programsByOtt = getProgramsByOtt(ottId);
 
-          {/* Wavve Row */}
-          <div className="platform-row">
-            <h3 className="platform-title">
-              <span className="platform-logo wavve">WAVVE</span>
-            </h3>
-            <div className="content-scroll">
-              {getProgramsByOtt(2)
-                .slice(0, 10)
-                .map((program) => (
-                  <div key={program.programId} className="content-card">
-                    <div
-                      className="poster-container"
-                      onClick={() => handleContentClick(program)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <div
-                        className="poster-image"
-                        style={{
-                          backgroundImage: program.thumbnailUrl
-                            ? `url(${program.thumbnailUrl})`
-                            : undefined,
-                          backgroundColor: program.thumbnailUrl
-                            ? undefined
-                            : "#ccc",
-                        }}
-                      >
-                        {!program.thumbnailUrl && <span>이미지 없음</span>}
-                      </div>
-                    </div>
-                    <h4 className="content-title">{program.title}</h4>
-                    <div className="content-date">
-                      {getDisplayDate(program)}
-                    </div>
-                    <button
-                      className="add-button"
-                      onClick={() => handleAddToWishlist(program)}
-                    >
-                      <svg
-                        width="16"
-                        height="20"
-                        viewBox="0 0 16 20"
-                        fill="none"
-                      >
-                        <path
-                          d="M8 4V16M2 10H14"
-                          stroke="#1F2937"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <span>보고싶은 목록에 추가</span>
-                    </button>
-                  </div>
-                ))}
-            </div>
-          </div>
+            if (programsByOtt.length === 0) return null;
 
-          {/* Disney+ Row */}
-          <div className="platform-row">
-            <h3 className="platform-title">
-              <span className="platform-logo disney">DISNEY+</span>
-            </h3>
-            <div className="content-scroll">
-              {getProgramsByOtt(3)
-                .slice(0, 10)
-                .map((program) => (
-                  <div key={program.programId} className="content-card">
-                    <div
-                      className="poster-container"
-                      onClick={() => handleContentClick(program)}
-                      style={{ cursor: "pointer" }}
-                    >
+            return (
+              <div key={ottId} className="platform-row">
+                <h3 className="platform-title">
+                  <span className={`platform-logo ${ottInfo.className}`}>
+                    {ottInfo.name.replace("_", " ").toUpperCase()}
+                  </span>
+                </h3>
+                <div className="content-scroll">
+                  {programsByOtt.slice(0, 10).map((program) => (
+                    <div key={program.programId} className="content-card">
                       <div
-                        className="poster-image"
-                        style={{
-                          backgroundImage: program.thumbnailUrl
-                            ? `url(${program.thumbnailUrl})`
-                            : undefined,
-                          backgroundColor: program.thumbnailUrl
-                            ? undefined
-                            : "#ccc",
-                        }}
+                        className="poster-container"
+                        onClick={() => handleContentClick(program)}
+                        style={{ cursor: "pointer" }}
                       >
-                        {!program.thumbnailUrl && <span>이미지 없음</span>}
+                        <div
+                          className="poster-image"
+                          style={{
+                            backgroundImage: program.thumbnailUrl
+                              ? `url(${program.thumbnailUrl})`
+                              : undefined,
+                            backgroundColor: program.thumbnailUrl
+                              ? undefined
+                              : "#ccc",
+                          }}
+                        >
+                          {!program.thumbnailUrl && <span>이미지 없음</span>}
+                        </div>
                       </div>
-                    </div>
-                    <h4 className="content-title">{program.title}</h4>
-                    <div className="content-date">
-                      {getDisplayDate(program)}
-                    </div>
-                    <button
-                      className="add-button"
-                      onClick={() => handleAddToWishlist(program)}
-                    >
-                      <svg
-                        width="16"
-                        height="20"
-                        viewBox="0 0 16 20"
-                        fill="none"
+                      <h4 className="content-title">{program.title}</h4>
+                      <div className="content-date">
+                        {getDisplayDate(program)}
+                      </div>
+                      <button
+                        className="add-button"
+                        onClick={() => handleAddToWishlist(program)}
                       >
-                        <path
-                          d="M8 4V16M2 10H14"
-                          stroke="#1F2937"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <span>보고싶은 목록에 추가</span>
-                    </button>
-                  </div>
-                ))}
-            </div>
-          </div>
+                        <svg
+                          width="16"
+                          height="20"
+                          viewBox="0 0 16 20"
+                          fill="none"
+                        >
+                          <path
+                            d="M8 4V16M2 10H14"
+                            stroke="#1F2937"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                        <span>보고싶은 목록에 추가</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </section>
       </main>
 
-      {/* Modal - TODO: ContentModal도 Program 타입에 맞게 수정 필요 */}
+      {/* Modal */}
       {selectedProgram && (
         <ContentModal
           content={selectedProgram}

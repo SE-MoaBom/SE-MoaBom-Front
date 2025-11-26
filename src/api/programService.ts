@@ -17,9 +17,8 @@ export interface ProgramAvailability {
   expireDate: string | null;
 }
 
-// 프로그램 목록 아이템 타입
+// 프로그램 타입 (목록 및 상세 통합)
 export interface Program {
-  availability: any;
   programId: number;
   title: string;
   description: string;
@@ -29,19 +28,15 @@ export interface Program {
   runningTime: number | null;
   ranking: number | null;
   status: ProgramStatus;
-  wishlistId: number | null;
-}
-
-// 프로그램 상세 타입
-export interface ProgramDetail extends Program {
   availability: ProgramAvailability[];
+  wishlistId: number | null;
 }
 
 // 프로그램 검색 결과 타입
 export interface ProgramSearchResult {
   page: number;
   size: number;
-  totalPages: number;
+  totalpages: number;
   results: Program[];
 }
 
@@ -77,19 +72,15 @@ export const searchPrograms = async (
  * 콘텐츠 상세 조회
  * GET /programs/{programId}
  */
-export const getProgramDetail = async (
-  programId: number
-): Promise<ProgramDetail> => {
-  const response = await apiClient.get<ProgramDetail>(`/programs/${programId}`);
+export const getProgramDetail = async (programId: number): Promise<Program> => {
+  const response = await apiClient.get<Program>(`/programs/${programId}`);
   return response.data;
 };
 
 /**
  * 인기 콘텐츠 조회 (랭킹순)
  */
-export const getPopularPrograms = async (
-  size: number = 10
-): Promise<Program[]> => {
+export const getPopularPrograms = async (size: number = 10): Promise<Program[]> => {
   const result = await searchPrograms({
     sort: "RANKING",
     size,
@@ -100,9 +91,7 @@ export const getPopularPrograms = async (
 /**
  * 공개 예정 콘텐츠 조회
  */
-export const getUpcomingPrograms = async (
-  size: number = 10
-): Promise<Program[]> => {
+export const getUpcomingPrograms = async (size: number = 10): Promise<Program[]> => {
   const result = await searchPrograms({
     status: "UPCOMING",
     size,
@@ -113,9 +102,7 @@ export const getUpcomingPrograms = async (
 /**
  * 종료 예정 콘텐츠 조회
  */
-export const getExpiringPrograms = async (
-  size: number = 10
-): Promise<Program[]> => {
+export const getExpiringPrograms = async (size: number = 10): Promise<Program[]> => {
   const result = await searchPrograms({
     status: "EXPIRING",
     size,
