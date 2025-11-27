@@ -17,4 +17,4 @@ export * from "./programService";
 export * from "./wishlistService";
 
 // Recommendation Service
-// export * from "./recommendationService";
+export * from "./recommendationService";
