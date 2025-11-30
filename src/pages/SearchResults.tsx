@@ -17,7 +17,7 @@ const SearchResultsPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { addToWishlist } = useWishlist();
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
 
   // 검색 실행
   useEffect(() => {
@@ -58,9 +58,37 @@ const SearchResultsPage: React.FC = () => {
     setSelectedContent(null);
   };
 
-  // 찜하기 핸들러
-  const handleAddToWishlist = (program: Program) => {
-    addToWishlist(program.programId, program.title);
+  // 찜 목록에 있는지 확인
+  const isInWishlist = (programId: number): boolean => {
+    return wishlist.some((item) => item.programId === programId);
+  };
+
+  // 찜하기 토글 핸들러
+  const handleToggleWishlist = async (
+    e: React.MouseEvent,
+    program: Program
+  ) => {
+    e.stopPropagation(); // 카드 클릭 이벤트 방지
+
+    const item = wishlist.find((w) => w.programId === program.programId);
+
+    if (item) {
+      // 이미 찜한 경우 - 삭제 확인
+      const confirmed = window.confirm(
+        `'${program.title}'을(를) 보고싶은 목록에서 삭제하시겠습니까?`
+      );
+
+      if (confirmed) {
+        await removeFromWishlist(item.wishlistId);
+      }
+    } else {
+      // 찜하지 않은 경우 - 추가
+      await addToWishlist(
+        program.programId,
+        program.title,
+        program.thumbnailUrl
+      );
+    }
   };
 
   // 검색어 하이라이트
@@ -109,47 +137,81 @@ const SearchResultsPage: React.FC = () => {
             </div>
           ) : searchResults.length > 0 ? (
             <div className="search-results-grid">
-              {searchResults.map((program) => (
-                <div key={program.programId} className="content-card">
-                  <div
-                    className="poster-container"
-                    onClick={() => handleContentClick(program)}
-                    style={{ cursor: "pointer" }}
-                  >
+              {searchResults.map((program) => {
+                const inWishlist = isInWishlist(program.programId);
+                return (
+                  <div key={program.programId} className="content-card">
                     <div
-                      className="poster-image"
-                      style={{
-                        backgroundImage: program.thumbnailUrl
-                          ? `url(${program.thumbnailUrl})`
-                          : undefined,
-                        backgroundColor: program.thumbnailUrl
-                          ? undefined
-                          : "#ccc",
-                      }}
+                      className="poster-container"
+                      onClick={() => handleContentClick(program)}
+                      style={{ cursor: "pointer" }}
                     >
-                      {!program.thumbnailUrl && <span>이미지 없음</span>}
+                      <div
+                        className="poster-image"
+                        style={{
+                          backgroundImage: program.thumbnailUrl
+                            ? `url(${program.thumbnailUrl})`
+                            : undefined,
+                          backgroundColor: program.thumbnailUrl
+                            ? undefined
+                            : "#ccc",
+                        }}
+                      >
+                        {!program.thumbnailUrl && <span>이미지 없음</span>}
+                      </div>
                     </div>
+                    <h4 className="content-title">
+                      {highlightMatch(program.title, query)}
+                    </h4>
+                    <div className="content-date">
+                      {getDisplayDate(program)}
+                    </div>
+                    <button
+                      className={`wishlist-toggle-button ${
+                        inWishlist ? "added" : ""
+                      }`}
+                      onClick={(e) => handleToggleWishlist(e, program)}
+                    >
+                      {inWishlist ? (
+                        <>
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                          >
+                            <path
+                              d="M16.6666 5L7.49998 14.1667L3.33331 10"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                          <span>추가 완료</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                          >
+                            <path
+                              d="M10 4V16M4 10H16"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                          <span>보고 싶은 목록에 추가</span>
+                        </>
+                      )}
+                    </button>
                   </div>
-                  <h4 className="content-title">
-                    {highlightMatch(program.title, query)}
-                  </h4>
-                  <div className="content-date">{getDisplayDate(program)}</div>
-                  <button
-                    className="add-button"
-                    onClick={() => handleAddToWishlist(program)}
-                  >
-                    <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
-                      <path
-                        d="M8 4V16M2 10H14"
-                        stroke="#1F2937"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <span>보고싶은 목록에 추가</span>
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="no-results">
@@ -159,13 +221,11 @@ const SearchResultsPage: React.FC = () => {
         </div>
       </main>
 
-      {/* 변환 함수 없이 바로 전달 */}
       {selectedContent && (
         <ContentModal
           content={selectedContent}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          onAddToWishlist={() => handleAddToWishlist(selectedContent)}
         />
       )}
       <BottomNavigation />

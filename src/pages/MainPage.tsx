@@ -105,11 +105,6 @@ const MainPage: React.FC = () => {
     return OTT_MAPPING[ottId]?.displayName || "UNKNOWN";
   };
 
-  // OTT ID로 className 가져오기
-  const getOttClassName = (ottId: number): string => {
-    return OTT_MAPPING[ottId]?.className || "";
-  };
-
   // 현재 탭에 맞는 프로그램 필터링 및 정렬
   const getCurrentShows = (): Program[] => {
     let filtered: Program[] = [];
