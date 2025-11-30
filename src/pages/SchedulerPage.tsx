@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // useNavigate 추가
 import Header from "../components/Header";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -8,6 +8,7 @@ import {
   type PlanAction,
   type Program,
 } from "../api";
+import { createSubscription } from "../api/subscriptionService"; // 구독 생성 API 추가
 import "../styles/SchedulerPage.css";
 import BottomNavigation from "../components/BottomNavigation";
 
@@ -30,7 +31,28 @@ const AccordionArrow = ({ isOpen }: { isOpen: boolean }) => (
   </svg>
 );
 
+// OTT 이름 -> ID 변환 헬퍼 (저장용)
+const getOttIdByName = (name: string): number => {
+  const normalized = name.toUpperCase().replace(/\s/g, "");
+
+  if (normalized.includes("NETFLIX") || normalized.includes("넷플릭스"))
+    return 1;
+  if (normalized.includes("TVING") || normalized.includes("티빙")) return 2;
+  if (normalized.includes("COUPANG") || normalized.includes("쿠팡")) return 3;
+  if (normalized.includes("WAVVE") || normalized.includes("웨이브")) return 4;
+  if (normalized.includes("DISNEY") || normalized.includes("디즈니")) return 5;
+  if (normalized.includes("WATCHA") || normalized.includes("왓챠")) return 6;
+  if (normalized.includes("LAFTEL") || normalized.includes("라프텔")) return 7;
+  if (normalized.includes("MOBILE") || normalized.includes("모바일")) return 8; // U+모바일tv
+  if (normalized.includes("AMAZON") || normalized.includes("아마존")) return 9;
+  if (normalized.includes("CINEFOX") || normalized.includes("시네폭스"))
+    return 10;
+
+  return 0; // 매핑 실패
+};
+
 const SchedulerPage: React.FC = () => {
+  const navigate = useNavigate(); // 네비게이션 훅
   const { isLoggedIn, isLoading: authLoading } = useAuth();
   const [scheduleData, setScheduleData] = useState<ScheduleResponse | null>(
     null
@@ -74,6 +96,46 @@ const SchedulerPage: React.FC = () => {
     }
   }, [isLoggedIn, authLoading]);
 
+  // --- 추가된 기능: 내 구독에 일정 반영하기 핸들러 ---
+  const handleApplySchedule = async () => {
+    if (!scheduleData || !scheduleData.actions.length) return;
+
+    const confirmed = window.confirm(
+      "이 스케줄을 '나의 구독' 페이지에 저장하시겠습니까?"
+    );
+
+    if (!confirmed) return;
+
+    setLoading(true); // 로딩 표시
+
+    try {
+      // 추천된 각 플랜을 순회하며 구독 생성 API 호출
+      for (const plan of scheduleData.actions) {
+        const ottId = getOttIdByName(plan.ottName);
+
+        if (ottId === 0) {
+          console.warn(`알 수 없는 OTT 이름: ${plan.ottName}`);
+          continue;
+        }
+
+        await createSubscription({
+          ottID: ottId,
+          startDate: plan.dateRange.start,
+          endDate: plan.dateRange.end,
+        });
+      }
+
+      alert("성공적으로 반영되었습니다! 나의 구독 페이지로 이동합니다.");
+      navigate("/subscribe"); // 구독 페이지로 이동
+    } catch (err) {
+      console.error("구독 반영 실패:", err);
+      alert("시청 스케줄을 반영하는 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  // ------------------------------------------------
+
   const toggleAccordion = (ottName: string) => {
     setOpenAccordion(openAccordion === ottName ? null : ottName);
   };
@@ -97,7 +159,7 @@ const SchedulerPage: React.FC = () => {
     );
   }
 
-  // 1. 로그인이 되어있지 않은 경우 (수정됨: CSS 클래스 사용)
+  // 1. 로그인이 되어있지 않은 경우
   if (!isLoggedIn) {
     return (
       <div className="page-wrapper">
@@ -116,7 +178,7 @@ const SchedulerPage: React.FC = () => {
     );
   }
 
-  // 2. 에러 발생 시 (수정됨: CSS 클래스 사용)
+  // 2. 에러 발생 시
   if (error) {
     return (
       <div className="page-wrapper">
@@ -146,7 +208,7 @@ const SchedulerPage: React.FC = () => {
     );
   }
 
-  // 3. 데이터가 없을 때 (수정됨: CSS 클래스 사용)
+  // 3. 데이터가 없을 때
   if (
     !scheduleData ||
     !scheduleData.actions ||
@@ -285,8 +347,11 @@ const SchedulerPage: React.FC = () => {
 
         {/* 액션 버튼 */}
         <section className="action-buttons">
-          <button className="scheduler-action-button">
-            내 구독에 이 일정 반영하기
+          <button
+            className="scheduler-action-button"
+            onClick={handleApplySchedule} // 핸들러 연결
+          >
+            나의 구독에 이 시청 스케줄 반영하기
           </button>
           <button
             className="scheduler-action-button secondary"

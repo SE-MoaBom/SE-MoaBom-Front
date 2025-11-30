@@ -27,13 +27,24 @@ const WishlistPage: React.FC = () => {
   const navigate = useNavigate();
   const { wishlist, removeFromWishlist, isLoading, error } = useWishlist();
 
-  // 삭제 버튼 클릭 시
-  const handleDeleteItem = async (wishlistId: number) => {
-    await removeFromWishlist(wishlistId);
+  // 삭제 버튼 클릭 시 (수정됨: 확인 팝업 추가)
+  const handleDeleteItem = async (wishlistId: number, title: string) => {
+    // 1. 확인 팝업
+    const confirmed = window.confirm(
+      `'${title}'을(를) 보고싶은 목록에서 삭제하시겠습니까?`
+    );
+
+    if (confirmed) {
+      await removeFromWishlist(wishlistId);
+    }
   };
 
-  // 구독 일정 추천 페이지로 이동
+  // 스케줄러 페이지로 이동 (수정됨: 알림 팝업 추가)
   const handleRecommendClick = () => {
+    // 1. 알림 팝업
+    alert("이 리스트를 기반으로 최적의 시청 스케줄을 계산합니다!");
+
+    // 2. 페이지 이동
     navigate("/scheduler");
   };
 
@@ -76,7 +87,7 @@ const WishlistPage: React.FC = () => {
             </button>
           </div>
         ) : (
-          // 목록이 있을 때 (제목 제거됨)
+          // 목록이 있을 때
           <>
             <div className="wishlist-list">
               {wishlist.map((item) => (
@@ -100,7 +111,10 @@ const WishlistPage: React.FC = () => {
                     </div>
                   </div>
                   <button
-                    onClick={() => handleDeleteItem(item.wishlistId)}
+                    // 수정됨: title도 함께 전달
+                    onClick={() =>
+                      handleDeleteItem(item.wishlistId, item.title)
+                    }
                     className="delete-button"
                   >
                     <TrashIcon />
@@ -114,7 +128,7 @@ const WishlistPage: React.FC = () => {
                 className="recommend-button"
                 onClick={handleRecommendClick}
               >
-                이 리스트로 구독 일정 추천받기
+                이 리스트로 시청 스케줄 추천받기
               </button>
             </div>
           </>

@@ -97,7 +97,7 @@ const SignupPage: React.FC = () => {
           <div>
             <h2 className="signup-title">회원가입</h2>
             <p className="signup-subtitle">
-              회원이 되어 다양한 혜택을 경험해보세요!
+              회원이 되어 모아봄의 서비스를 경험해보세요!
             </p>
           </div>
 
