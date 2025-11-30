@@ -42,7 +42,7 @@ const WishlistPage: React.FC = () => {
   // 스케줄러 페이지로 이동 (수정됨: 알림 팝업 추가)
   const handleRecommendClick = () => {
     // 1. 알림 팝업
-    alert("이 리스트를 기반으로 최적의 시청 스케줄을 계산합니다!");
+    alert("이 리스트를 기반으로 구독 스케줄을 계산합니다!");
 
     // 2. 페이지 이동
     navigate("/scheduler");
@@ -128,7 +128,7 @@ const WishlistPage: React.FC = () => {
                 className="recommend-button"
                 onClick={handleRecommendClick}
               >
-                이 리스트로 시청 스케줄 추천받기
+                이 리스트로 구독 스케줄 추천받기
               </button>
             </div>
           </>
