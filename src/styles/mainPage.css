@@ -930,3 +930,224 @@
     font-size: 20px;
   }
 }
+
+.add-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+  gap: 6px;
+  height: 44px;
+  background: rgba(226, 232, 240, 0.9);
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: "Inter";
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: #1f2937;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.add-button::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s, height 0.4s;
+}
+
+.add-button:hover::before {
+  width: 200px;
+  height: 200px;
+}
+
+.add-button:hover {
+  background: rgba(226, 232, 240, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.add-button:active {
+  transform: translateY(0);
+}
+
+/* 추가 완료 상태 */
+.add-button.added {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.add-button.added:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
+}
+
+.add-button.added svg {
+  animation: checkmarkPop 0.4s ease;
+}
+
+@keyframes checkmarkPop {
+  0% {
+    transform: scale(0) rotate(-45deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(0deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* SVG 아이콘 전환 */
+.add-button svg {
+  width: 16px;
+  height: 20px;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.add-button:hover svg {
+  transform: scale(1.1);
+}
+
+.add-button.added svg path {
+  stroke: #ffffff;
+}
+
+.add-button span {
+  position: relative;
+  z-index: 1;
+}
+
+/* 검색 드롭다운의 추가 버튼 */
+.search-add-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: #000000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.search-add-button:hover {
+  background-color: #1f2937;
+  transform: scale(1.05);
+}
+
+.search-add-button.added {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.search-add-button.added:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.search-add-button svg {
+  width: 10px;
+  height: 10px;
+  transition: transform 0.3s ease;
+}
+
+.search-add-button:hover svg {
+  transform: scale(1.2);
+}
+
+.search-add-button-text {
+  font-family: "Inter";
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 24px;
+  color: #ffffff;
+}
+
+/* 순위 배지 스타일 */
+.ranking-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fbbf24;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 16px;
+  font-family: "Inter";
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+/* 펄스 애니메이션 */
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.5),
+      0 0 0 4px rgba(16, 185, 129, 0.1);
+  }
+}
+
+.add-button.added {
+  animation: pulse 2s infinite;
+}
+
+/* 반응형 - 모바일 */
+@media (max-width: 768px) {
+  .add-button {
+    font-size: 13px;
+    padding: 8px 0;
+    height: 40px;
+  }
+
+  .add-button svg {
+    width: 14px;
+    height: 18px;
+  }
+
+  .ranking-badge {
+    font-size: 14px;
+    padding: 3px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-button {
+    font-size: 12px;
+    padding: 6px 0;
+    height: 36px;
+    gap: 4px;
+  }
+
+  .add-button svg {
+    width: 12px;
+    height: 16px;
+  }
+
+  .ranking-badge {
+    font-size: 12px;
+    padding: 2px 6px;
+    bottom: 4px;
+    right: 4px;
+  }
+}

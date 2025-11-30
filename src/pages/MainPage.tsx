@@ -10,21 +10,31 @@ import BottomNavigation from "../components/BottomNavigation";
 type ContentTab = "popular" | "upcoming" | "ending";
 
 // OTT ID 매핑
-const OTT_MAPPING: { [key: number]: { name: string; className: string } } = {
-  1: { name: "NETFLIX", className: "netflix" },
-  2: { name: "TVING", className: "tving" },
-  3: { name: "COUPANG_PLAY", className: "coupang" },
-  4: { name: "WAVVE", className: "wavve" },
-  5: { name: "DISNEY_PLUS", className: "disney" },
-  6: { name: "WATCHA", className: "watcha" },
-  7: { name: "LAFTEL", className: "laftel" },
-  8: { name: "U_PLUS_MOBILE_TV", className: "uplus" },
-  9: { name: "AMAZON_PRIME_VIDEO", className: "amazon" },
-  10: { name: "CINEFOX", className: "cinefox" },
+const OTT_MAPPING: {
+  [key: number]: { name: string; className: string; displayName: string };
+} = {
+  1: { name: "NETFLIX", className: "netflix", displayName: "넷플릭스" },
+  2: { name: "TVING", className: "tving", displayName: "티빙" },
+  3: { name: "COUPANG_PLAY", className: "coupang", displayName: "쿠팡플레이" },
+  4: { name: "WAVVE", className: "wavve", displayName: "웨이브" },
+  5: { name: "DISNEY_PLUS", className: "disney", displayName: "디즈니+" },
+  6: { name: "WATCHA", className: "watcha", displayName: "왓챠" },
+  7: { name: "LAFTEL", className: "laftel", displayName: "라프텔" },
+  8: {
+    name: "U_PLUS_MOBILE_TV",
+    className: "uplus",
+    displayName: "U+모바일tv",
+  },
+  9: {
+    name: "AMAZON_PRIME_VIDEO",
+    className: "amazon",
+    displayName: "Amazon Prime",
+  },
+  10: { name: "CINEFOX", className: "cinefox", displayName: "시네폭스" },
 };
 
 const MainPage: React.FC = () => {
-  const { addToWishlist } = useWishlist();
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const [activeTab, setActiveTab] = useState<ContentTab>("popular");
   const [heroIndex, setHeroIndex] = useState(0);
   const [programs, setPrograms] = useState<Program[]>([]);
@@ -92,7 +102,7 @@ const MainPage: React.FC = () => {
 
   // OTT ID로 플랫폼 이름 가져오기
   const getOttName = (ottId: number): string => {
-    return OTT_MAPPING[ottId]?.name || "UNKNOWN";
+    return OTT_MAPPING[ottId]?.displayName || "UNKNOWN";
   };
 
   // OTT ID로 className 가져오기
@@ -156,15 +166,6 @@ const MainPage: React.FC = () => {
         const ottId = content.availability[0]?.ottId || 0;
         const ottName = getOttName(ottId);
 
-        // content 객체의 ranking 속성을 직접 사용
-        console.log("Hero Content Detail:", {
-          title: content.title,
-          ranking: content.ranking, // 이것이 실제 순위
-          heroIndex: heroIndex, // 이것은 단순 배열 인덱스
-          ottId: ottId,
-          ottName: ottName,
-        });
-
         if (content.ranking !== null && content.ranking !== undefined) {
           return `${content.ranking}위 ${ottName}`;
         }
@@ -187,6 +188,34 @@ const MainPage: React.FC = () => {
       return program.availability[0]?.releaseDate || "";
     } else {
       return program.availability[0]?.expireDate || "";
+    }
+  };
+
+  // 위시리스트에 있는지 확인
+  const isInWishlist = (programId: number): boolean => {
+    return wishlist.some((item) => item.programId === programId);
+  };
+
+  // 위시리스트 토글 핸들러
+  const handleToggleWishlist = async (program: Program) => {
+    const item = wishlist.find((w) => w.programId === program.programId);
+
+    if (item) {
+      // 이미 찜한 경우 - 삭제 확인
+      const confirmed = window.confirm(
+        `'${program.title}'을(를) 보고싶은 목록에서 삭제하시겠습니까?`
+      );
+
+      if (confirmed) {
+        await removeFromWishlist(item.wishlistId);
+      }
+    } else {
+      // 찜하지 않은 경우 - 추가
+      await addToWishlist(
+        program.programId,
+        program.title,
+        program.thumbnailUrl
+      );
     }
   };
 
@@ -232,10 +261,6 @@ const MainPage: React.FC = () => {
     handleContentClick(program);
   };
 
-  const handleAddToWishlist = (program: Program) => {
-    addToWishlist(program.programId, program.title);
-  };
-
   if (loading) {
     return (
       <div className="main-page">
@@ -261,18 +286,14 @@ const MainPage: React.FC = () => {
 
   const heroContent = getHeroContent();
 
-  // ⭐ 실제 데이터에 있는 모든 OTT를 표시하도록 동적으로 생성
-  const currentShows = getCurrentShows();
-  const availableOttIds = new Set<number>();
-
-  currentShows.forEach((program) => {
-    program.availability.forEach((avail) => {
-      availableOttIds.add(avail.ottId);
-    });
-  });
-
-  // Set을 배열로 변환하고 정렬
-  const allAvailableOttIds = Array.from(availableOttIds).sort((a, b) => a - b);
+  // 현재 탭에서 사용 가능한 모든 OTT ID 추출
+  const allAvailableOttIds = Array.from(
+    new Set(
+      getCurrentShows().flatMap((program) =>
+        program.availability.map((avail) => avail.ottId)
+      )
+    )
+  ).sort((a, b) => a - b);
 
   return (
     <div className="main-page">
@@ -313,41 +334,70 @@ const MainPage: React.FC = () => {
 
             {showSearchDropdown && searchResults.length > 0 && (
               <div className="search-dropdown">
-                {searchResults.map((program) => (
-                  <div
-                    key={program.programId}
-                    className="search-dropdown-item"
-                    onClick={() => handleDropdownItemClick(program)}
-                  >
-                    <div className="search-item-title">
-                      {highlightMatch(program.title, searchQuery)}
-                    </div>
-                    <button
-                      className="search-add-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToWishlist(program);
-                      }}
+                {searchResults.map((program) => {
+                  const inWishlist = isInWishlist(program.programId);
+                  return (
+                    <div
+                      key={program.programId}
+                      className="search-dropdown-item"
+                      onClick={() => handleDropdownItemClick(program)}
                     >
-                      <svg
-                        width="10"
-                        height="10"
-                        viewBox="0 0 10 10"
-                        fill="none"
+                      <div className="search-item-title">
+                        {highlightMatch(program.title, searchQuery)}
+                      </div>
+                      <button
+                        className={`search-add-button ${
+                          inWishlist ? "added" : ""
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleWishlist(program);
+                        }}
                       >
-                        <path
-                          d="M5 2V8M2 5H8"
-                          stroke="#FFFFFF"
-                          strokeWidth="1"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <span className="search-add-button-text">
-                        보고 싶은 목록에 추가
-                      </span>
-                    </button>
-                  </div>
-                ))}
+                        {inWishlist ? (
+                          <>
+                            <svg
+                              width="10"
+                              height="10"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <path
+                                d="M13.3332 4L5.99984 11.3333L2.6665 8"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                            <span className="search-add-button-text">
+                              추가 완료
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <svg
+                              width="10"
+                              height="10"
+                              viewBox="0 0 10 10"
+                              fill="none"
+                            >
+                              <path
+                                d="M5 2V8M2 5H8"
+                                stroke="#FFFFFF"
+                                strokeWidth="1"
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                            <span className="search-add-button-text">
+                              보고 싶은 목록에 추가
+                            </span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -432,10 +482,9 @@ const MainPage: React.FC = () => {
 
         {/* Content Section - Platform Separated */}
         <section className="content-section">
-          {/* ⭐ 모든 OTT를 동적으로 표시 */}
           {allAvailableOttIds.map((ottId) => {
             const ottInfo = OTT_MAPPING[ottId];
-            if (!ottInfo) return null; // 매핑되지 않은 OTT는 스킵
+            if (!ottInfo) return null;
 
             const programsByOtt = getProgramsByOtt(ottId);
 
@@ -445,74 +494,90 @@ const MainPage: React.FC = () => {
               <div key={ottId} className="platform-row">
                 <h3 className="platform-title">
                   <span className={`platform-logo ${ottInfo.className}`}>
-                    {ottInfo.name.replace("_", " ").toUpperCase()}
+                    {ottInfo.displayName}
                   </span>
                 </h3>
                 <div className="content-scroll">
-                  {programsByOtt.slice(0, 10).map((program) => (
-                    <div key={program.programId} className="content-card">
-                      <div
-                        className="poster-container"
-                        onClick={() => handleContentClick(program)}
-                        style={{ cursor: "pointer", position: "relative" }}
-                      >
+                  {programsByOtt.slice(0, 10).map((program) => {
+                    const inWishlist = isInWishlist(program.programId);
+                    return (
+                      <div key={program.programId} className="content-card">
                         <div
-                          className="poster-image"
-                          style={{
-                            backgroundImage: program.thumbnailUrl
-                              ? `url(${program.thumbnailUrl})`
-                              : undefined,
-                            backgroundColor: program.thumbnailUrl
-                              ? undefined
-                              : "#ccc",
-                          }}
+                          className="poster-container"
+                          onClick={() => handleContentClick(program)}
+                          style={{ cursor: "pointer", position: "relative" }}
                         >
-                          {!program.thumbnailUrl && <span>이미지 없음</span>}
-                        </div>
-                        {/* 인기순 탭에서만 순위 표시 */}
-                        {activeTab === "popular" && program.ranking && (
                           <div
+                            className="poster-image"
                             style={{
-                              position: "absolute",
-                              bottom: "8px",
-                              right: "8px",
-                              backgroundColor: "rgba(0, 0, 0, 0.7)",
-                              color: "white",
-                              padding: "4px 8px",
-                              borderRadius: "4px",
-                              fontWeight: "bold",
-                              fontSize: "16px",
+                              backgroundImage: program.thumbnailUrl
+                                ? `url(${program.thumbnailUrl})`
+                                : undefined,
+                              backgroundColor: program.thumbnailUrl
+                                ? undefined
+                                : "#ccc",
                             }}
                           >
-                            #{program.ranking}
+                            {!program.thumbnailUrl && <span>이미지 없음</span>}
                           </div>
-                        )}
-                      </div>
-                      <h4 className="content-title">{program.title}</h4>
-                      <div className="content-date">
-                        {getDisplayDate(program)}
-                      </div>
-                      <button
-                        className="add-button"
-                        onClick={() => handleAddToWishlist(program)}
-                      >
-                        <svg
-                          width="16"
-                          height="20"
-                          viewBox="0 0 16 20"
-                          fill="none"
+                          {/* 인기순 탭에서만 순위 표시 */}
+                          {activeTab === "popular" && program.ranking && (
+                            <div className="ranking-badge">
+                              #{program.ranking}
+                            </div>
+                          )}
+                        </div>
+                        <h4 className="content-title">{program.title}</h4>
+                        <div className="content-date">
+                          {getDisplayDate(program)}
+                        </div>
+                        <button
+                          className={`add-button ${inWishlist ? "added" : ""}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleWishlist(program);
+                          }}
                         >
-                          <path
-                            d="M8 4V16M2 10H14"
-                            stroke="#1F2937"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                        <span>보고싶은 목록에 추가</span>
-                      </button>
-                    </div>
-                  ))}
+                          {inWishlist ? (
+                            <>
+                              <svg
+                                width="16"
+                                height="20"
+                                viewBox="0 0 20 20"
+                                fill="none"
+                              >
+                                <path
+                                  d="M16.6666 5L7.49998 14.1667L3.33331 10"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                              <span>추가 완료</span>
+                            </>
+                          ) : (
+                            <>
+                              <svg
+                                width="16"
+                                height="20"
+                                viewBox="0 0 16 20"
+                                fill="none"
+                              >
+                                <path
+                                  d="M8 4V16M2 10H14"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                />
+                              </svg>
+                              <span>보고 싶은 목록에 추가</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -526,7 +591,6 @@ const MainPage: React.FC = () => {
           content={selectedProgram}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          onAddToWishlist={() => handleAddToWishlist(selectedProgram)}
         />
       )}
       <BottomNavigation />
