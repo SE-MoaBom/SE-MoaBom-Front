@@ -320,7 +320,7 @@
   filter: blur(6px);
   opacity: 0.6;
   user-select: none;
-  font-size: 16px; /* 텍스트 크기와 비슷하게 맞춤 */
+  font-size: 16px;
   letter-spacing: 1px;
 }
 

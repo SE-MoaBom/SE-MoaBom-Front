@@ -50,12 +50,10 @@ const getOttIdByName = (name: string): number => {
   return 0;
 };
 
-// --- 추가된 헬퍼 함수: 날짜 포맷 변경 (2025-11-30 -> 2025.11.30) ---
 const formatDate = (dateString: string) => {
   if (!dateString) return "";
   return dateString.replace(/-/g, ".");
 };
-// -------------------------------------------------------------
 
 const SchedulerPage: React.FC = () => {
   const navigate = useNavigate();
@@ -321,9 +319,8 @@ const SchedulerPage: React.FC = () => {
 
                 <div
                   className="login-trigger-button"
-                  // ▼▼▼ 수정된 부분: 클릭 시 알림창 띄우기 ▼▼▼
+                  // 클릭 시 알림창 띄우기
                   onClick={() => alert("로그인이 필요한 서비스입니다.")}
-                  // title="..." 속성을 삭제하여 호버 시 박스가 뜨지 않도록 함
                 >
                   <span className="blurred-price">₩ 99,999</span>
                 </div>
