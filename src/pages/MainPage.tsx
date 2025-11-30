@@ -207,6 +207,7 @@ const MainPage: React.FC = () => {
       );
 
       if (confirmed) {
+        console.log("삭제할 wishlistId:", item.wishlistId); // ✅ 디버깅용
         await removeFromWishlist(item.wishlistId);
       }
     } else {

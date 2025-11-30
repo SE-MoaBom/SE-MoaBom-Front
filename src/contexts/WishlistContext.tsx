@@ -71,6 +71,9 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     const guestWishlist = loadGuestWishlist();
 
     if (guestWishlist.length > 0) {
+      setIsLoading(true);
+      setError(null);
+
       try {
         // 게스트 위시리스트의 각 아이템을 서버에 추가
         for (const item of guestWishlist) {
@@ -84,11 +87,20 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
         // 동기화 완료 후 로컬 스토리지 정리
         localStorage.removeItem(WISHLIST_STORAGE_KEY);
 
-        // 서버에서 최신 위시리스트 가져오기
-        await refreshWishlist();
+        // 서버에서 최신 위시리스트 가져오기 (서버 ID 포함)
+        const data = await getWishlist();
+        setWishlist(data);
+
+        console.log("위시리스트 동기화 완료:", data);
       } catch (err) {
         console.error("위시리스트 동기화 실패:", err);
+        setError("위시리스트 동기화에 실패했습니다.");
+      } finally {
+        setIsLoading(false);
       }
+    } else {
+      // 게스트 위시리스트가 없어도 서버 데이터 로드
+      await refreshWishlist();
     }
   };
 
