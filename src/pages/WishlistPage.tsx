@@ -37,12 +37,16 @@ const WishlistPage: React.FC = () => {
     navigate("/scheduler");
   };
 
+  // 콘텐츠 둘러보기 버튼 (홈으로 이동)
+  const handleBrowseClick = () => {
+    navigate("/");
+  };
+
   if (isLoading) {
     return (
       <div className="page-wrapper">
         <Header />
         <main className="wishlist-container">
-          <h1 className="wishlist-title">내가 찜한 리스트</h1>
           <div className="loading-state">
             <p>로딩 중...</p>
           </div>
@@ -55,46 +59,65 @@ const WishlistPage: React.FC = () => {
     <div className="page-wrapper">
       <Header />
       <main className="wishlist-container">
-        <h1 className="wishlist-title">내가 찜한 리스트</h1>
-
+        {/* 에러 메시지 */}
         {error && <p className="error-message">{error}</p>}
 
-        <div className="wishlist-list">
-          {wishlist.length === 0 ? (
-            <p className="empty-message">찜한 콘텐츠가 없습니다.</p>
-          ) : (
-            wishlist.map((item) => (
-              <div key={item.wishlistId} className="wishlist-item">
-                <div className="item-details">
-                  <img
-                    src={
-                      item.thumbnailUrl ||
-                      "https://via.placeholder.com/60x90/ccc/FFFFFF?text=No+Image"
-                    }
-                    alt={`${item.title} 포스터`}
-                    className="item-poster"
-                  />
-                  <div className="item-info">
-                    <span className="item-title">{item.title}</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleDeleteItem(item.wishlistId)}
-                  className="delete-button"
-                >
-                  <TrashIcon />
-                </button>
-              </div>
-            ))
-          )}
-        </div>
-
-        {wishlist.length > 0 && (
-          <div className="recommend-button-container">
-            <button className="recommend-button" onClick={handleRecommendClick}>
-              이 리스트로 구독 일정 추천받기
+        {wishlist.length === 0 ? (
+          // 빈 화면일 때
+          <div className="wishlist-empty-state">
+            <h3>찜한 콘텐츠가 없습니다.</h3>
+            <p>
+              아직 찜한 작품이 없네요.
+              <br />
+              홈으로 가서 보고 싶은 콘텐츠를 찾아보세요!
+            </p>
+            <button className="browse-button" onClick={handleBrowseClick}>
+              콘텐츠 둘러보기
             </button>
           </div>
+        ) : (
+          // 목록이 있을 때 (제목 제거됨)
+          <>
+            <div className="wishlist-list">
+              {wishlist.map((item) => (
+                <div key={item.wishlistId} className="wishlist-item">
+                  <div className="item-details">
+                    <img
+                      src={
+                        item.thumbnailUrl ||
+                        "https://via.placeholder.com/60x90/ccc/FFFFFF?text=No+Image"
+                      }
+                      alt={`${item.title} 포스터`}
+                      className="item-poster"
+                    />
+                    <div className="item-info">
+                      <span className="item-title">{item.title}</span>
+                      <span className="item-platform">
+                        {item.ottList && item.ottList.length > 0
+                          ? item.ottList.join(", ")
+                          : "OTT 정보 없음"}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteItem(item.wishlistId)}
+                    className="delete-button"
+                  >
+                    <TrashIcon />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="recommend-button-container">
+              <button
+                className="recommend-button"
+                onClick={handleRecommendClick}
+              >
+                이 리스트로 구독 일정 추천받기
+              </button>
+            </div>
+          </>
         )}
       </main>
       <BottomNavigation />
