@@ -541,23 +541,123 @@
   padding: 0 40px;
 }
 
+/* Platform Logo Styles - OTT별 브랜드 컬러 */
+
 .platform-logo {
   display: inline-block;
   padding: 6px 16px;
-  background: #e50914;
-  color: #ffffff;
   border-radius: 4px;
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.5px;
+  color: #ffffff;
+  text-align: center;
 }
 
+/* 1. Netflix - 레드 */
+.platform-logo.netflix {
+  background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.3);
+}
+
+/* 2. Tving - 핑크/레드 */
+.platform-logo.tving {
+  background: linear-gradient(135deg, #ff0558 0%, #e6004c 100%);
+  box-shadow: 0 2px 8px rgba(255, 5, 88, 0.3);
+}
+
+/* 3. Coupang Play - 오렌지/골드 */
+.platform-logo.coupang {
+  background: linear-gradient(135deg, #ff6b00 0%, #ff5500 100%);
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.3);
+}
+
+/* 4. Wavve - 블루 */
 .platform-logo.wavve {
-  background: #1351f9;
+  background: linear-gradient(135deg, #1351f9 0%, #0d3cc7 100%);
+  box-shadow: 0 2px 8px rgba(19, 81, 249, 0.3);
 }
 
+/* 5. Disney+ - 다크 블루 */
 .platform-logo.disney {
-  background: #113ccf;
+  background: linear-gradient(135deg, #113ccf 0%, #0a28a3 100%);
+  box-shadow: 0 2px 8px rgba(17, 60, 207, 0.3);
+}
+
+/* 6. Watcha - 퍼플/핑크 */
+.platform-logo.watcha {
+  background: linear-gradient(135deg, #ff0558 0%, #c9004d 100%);
+  box-shadow: 0 2px 8px rgba(255, 5, 88, 0.3);
+}
+
+/* 7. Laftel - 틸/그린 */
+.platform-logo.laftel {
+  background: linear-gradient(135deg, #00c9a7 0%, #00a88e 100%);
+  box-shadow: 0 2px 8px rgba(0, 201, 167, 0.3);
+}
+
+/* 8. U+ Mobile TV - 핑크 */
+.platform-logo.uplus {
+  background: linear-gradient(135deg, #e6007e 0%, #c40068 100%);
+  box-shadow: 0 2px 8px rgba(230, 0, 126, 0.3);
+}
+
+/* 9. Amazon Prime Video - 블루 */
+.platform-logo.amazon {
+  background: linear-gradient(135deg, #00a8e1 0%, #0088bb 100%);
+  box-shadow: 0 2px 8px rgba(0, 168, 225, 0.3);
+}
+
+/* 10. Cinefox - 다크 그레이/블랙 */
+.platform-logo.cinefox {
+  background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+  box-shadow: 0 2px 8px rgba(44, 44, 44, 0.3);
+}
+
+/* Hover Effects */
+.platform-logo:hover {
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+.platform-logo.netflix:hover {
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
+}
+
+.platform-logo.tving:hover {
+  box-shadow: 0 4px 12px rgba(255, 5, 88, 0.4);
+}
+
+.platform-logo.coupang:hover {
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
+}
+
+.platform-logo.wavve:hover {
+  box-shadow: 0 4px 12px rgba(19, 81, 249, 0.4);
+}
+
+.platform-logo.disney:hover {
+  box-shadow: 0 4px 12px rgba(17, 60, 207, 0.4);
+}
+
+.platform-logo.watcha:hover {
+  box-shadow: 0 4px 12px rgba(255, 5, 88, 0.4);
+}
+
+.platform-logo.laftel:hover {
+  box-shadow: 0 4px 12px rgba(0, 201, 167, 0.4);
+}
+
+.platform-logo.uplus:hover {
+  box-shadow: 0 4px 12px rgba(230, 0, 126, 0.4);
+}
+
+.platform-logo.amazon:hover {
+  box-shadow: 0 4px 12px rgba(0, 168, 225, 0.4);
+}
+
+.platform-logo.cinefox:hover {
+  box-shadow: 0 4px 12px rgba(44, 44, 44, 0.4);
 }
 
 /* Content Scroll Container */

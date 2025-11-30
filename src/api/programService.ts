@@ -80,7 +80,9 @@ export const getProgramDetail = async (programId: number): Promise<Program> => {
 /**
  * 인기 콘텐츠 조회 (랭킹순)
  */
-export const getPopularPrograms = async (size: number = 10): Promise<Program[]> => {
+export const getPopularPrograms = async (
+  size: number = 10
+): Promise<Program[]> => {
   const result = await searchPrograms({
     sort: "RANKING",
     size,
@@ -91,7 +93,9 @@ export const getPopularPrograms = async (size: number = 10): Promise<Program[]> 
 /**
  * 공개 예정 콘텐츠 조회
  */
-export const getUpcomingPrograms = async (size: number = 10): Promise<Program[]> => {
+export const getUpcomingPrograms = async (
+  size: number = 10
+): Promise<Program[]> => {
   const result = await searchPrograms({
     status: "UPCOMING",
     size,
@@ -102,7 +106,9 @@ export const getUpcomingPrograms = async (size: number = 10): Promise<Program[]>
 /**
  * 종료 예정 콘텐츠 조회
  */
-export const getExpiringPrograms = async (size: number = 10): Promise<Program[]> => {
+export const getExpiringPrograms = async (
+  size: number = 10
+): Promise<Program[]> => {
   const result = await searchPrograms({
     status: "EXPIRING",
     size,

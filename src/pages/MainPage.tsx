@@ -55,14 +55,12 @@ const MainPage: React.FC = () => {
       try {
         setLoading(true);
 
-        // 실제 API 호출
         const [popularRes, upcomingRes, expiringRes] = await Promise.all([
-          searchPrograms({ sort: "RANKING", size: 20 }), // 인기작
-          searchPrograms({ status: "UPCOMING", size: 20 }), // 공개 예정
-          searchPrograms({ status: "EXPIRING", size: 20 }), // 종료 예정
+          searchPrograms({ sort: "RANKING", size: 20 }),
+          searchPrograms({ status: "UPCOMING", size: 20 }),
+          searchPrograms({ status: "EXPIRING", size: 20 }),
         ]);
 
-        // API 응답 통합
         const allPrograms = [
           ...popularRes.results,
           ...upcomingRes.results,
@@ -97,19 +95,22 @@ const MainPage: React.FC = () => {
     return OTT_MAPPING[ottId]?.name || "UNKNOWN";
   };
 
+  // OTT ID로 className 가져오기
+  const getOttClassName = (ottId: number): string => {
+    return OTT_MAPPING[ottId]?.className || "";
+  };
+
   // 현재 탭에 맞는 프로그램 필터링 및 정렬
   const getCurrentShows = (): Program[] => {
     let filtered: Program[] = [];
 
     switch (activeTab) {
       case "popular":
-        // ranking이 있는 프로그램 (인기작)
         filtered = programs.filter((p) => p.ranking !== null);
         filtered.sort((a, b) => (a.ranking || 999) - (b.ranking || 999));
         break;
 
       case "upcoming":
-        // status가 UPCOMING인 프로그램
         filtered = programs.filter((p) => p.status === "UPCOMING");
         filtered.sort((a, b) => {
           const dateA = a.availability[0]?.releaseDate || "";
@@ -119,7 +120,6 @@ const MainPage: React.FC = () => {
         break;
 
       case "ending":
-        // status가 EXPIRING인 프로그램
         filtered = programs.filter((p) => p.status === "EXPIRING");
         filtered.sort((a, b) => {
           const dateA = a.availability[0]?.expireDate || "";
@@ -153,8 +153,23 @@ const MainPage: React.FC = () => {
 
     switch (activeTab) {
       case "popular":
-        const ottName = getOttName(content.availability[0]?.ottId || 0);
-        return `${ottName} ${content.ranking}위`;
+        const ottId = content.availability[0]?.ottId || 0;
+        const ottName = getOttName(ottId);
+
+        // content 객체의 ranking 속성을 직접 사용
+        console.log("Hero Content Detail:", {
+          title: content.title,
+          ranking: content.ranking, // 이것이 실제 순위
+          heroIndex: heroIndex, // 이것은 단순 배열 인덱스
+          ottId: ottId,
+          ottName: ottName,
+        });
+
+        if (content.ranking !== null && content.ranking !== undefined) {
+          return `${content.ranking}위 ${ottName}`;
+        }
+        return ottName;
+
       case "upcoming":
         return `${content.availability[0]?.releaseDate || ""} 공개`;
       case "ending":
@@ -217,7 +232,6 @@ const MainPage: React.FC = () => {
     handleContentClick(program);
   };
 
-  // 찜하기 핸들러
   const handleAddToWishlist = (program: Program) => {
     addToWishlist(program.programId, program.title);
   };
@@ -247,8 +261,18 @@ const MainPage: React.FC = () => {
 
   const heroContent = getHeroContent();
 
-  // 메인 OTT 리스트 (우선 표시할 주요 OTT)
-  const mainOttIds = [1, 4, 5]; // Netflix, Wavve, Disney+
+  // ⭐ 실제 데이터에 있는 모든 OTT를 표시하도록 동적으로 생성
+  const currentShows = getCurrentShows();
+  const availableOttIds = new Set<number>();
+
+  currentShows.forEach((program) => {
+    program.availability.forEach((avail) => {
+      availableOttIds.add(avail.ottId);
+    });
+  });
+
+  // Set을 배열로 변환하고 정렬
+  const allAvailableOttIds = Array.from(availableOttIds).sort((a, b) => a - b);
 
   return (
     <div className="main-page">
@@ -319,7 +343,7 @@ const MainPage: React.FC = () => {
                         />
                       </svg>
                       <span className="search-add-button-text">
-                        보고싶은 목록에 추가
+                        보고 싶은 목록에 추가
                       </span>
                     </button>
                   </div>
@@ -408,8 +432,11 @@ const MainPage: React.FC = () => {
 
         {/* Content Section - Platform Separated */}
         <section className="content-section">
-          {mainOttIds.map((ottId) => {
+          {/* ⭐ 모든 OTT를 동적으로 표시 */}
+          {allAvailableOttIds.map((ottId) => {
             const ottInfo = OTT_MAPPING[ottId];
+            if (!ottInfo) return null; // 매핑되지 않은 OTT는 스킵
+
             const programsByOtt = getProgramsByOtt(ottId);
 
             if (programsByOtt.length === 0) return null;
@@ -427,7 +454,7 @@ const MainPage: React.FC = () => {
                       <div
                         className="poster-container"
                         onClick={() => handleContentClick(program)}
-                        style={{ cursor: "pointer" }}
+                        style={{ cursor: "pointer", position: "relative" }}
                       >
                         <div
                           className="poster-image"
@@ -442,6 +469,24 @@ const MainPage: React.FC = () => {
                         >
                           {!program.thumbnailUrl && <span>이미지 없음</span>}
                         </div>
+                        {/* 인기순 탭에서만 순위 표시 */}
+                        {activeTab === "popular" && program.ranking && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              bottom: "8px",
+                              right: "8px",
+                              backgroundColor: "rgba(0, 0, 0, 0.7)",
+                              color: "white",
+                              padding: "4px 8px",
+                              borderRadius: "4px",
+                              fontWeight: "bold",
+                              fontSize: "16px",
+                            }}
+                          >
+                            #{program.ranking}
+                          </div>
+                        )}
                       </div>
                       <h4 className="content-title">{program.title}</h4>
                       <div className="content-date">
