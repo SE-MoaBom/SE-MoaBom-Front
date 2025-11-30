@@ -12,95 +12,161 @@
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: 0 1.5rem;
+  padding-bottom: 80px;
+
+  /* 수정: 내부 요소(빈 화면)가 높이를 꽉 채우도록 flex 설정 */
+  display: flex;
+  flex-direction: column;
 }
 
 /* "내가 찜한 리스트" 제목 */
 .wishlist-title {
-  font-size: 2.25rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 800;
+  margin-top: 3rem;
+  margin-bottom: 2.5rem;
+  color: #111827;
 }
 
-/* 찜한 아이템들을 감싸는 리스트 */
+/* --- 빈 화면 스타일 (완벽한 중앙 정렬) --- */
+.wishlist-empty-state {
+  /* 수정: 부모(container)의 남은 높이를 모두 차지하게 함 */
+  flex-grow: 1;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* 수정: 차지한 높이 안에서 내용물을 정중앙에 배치 */
+  justify-content: center;
+
+  text-align: center;
+  padding: 0 20px; /* 상하 패딩 제거 (justify-content가 처리함) */
+}
+
+.wishlist-empty-state h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 10px 0;
+}
+
+.wishlist-empty-state p {
+  font-size: 1rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0 0 32px 0;
+}
+
+.browse-button {
+  background-color: #000000;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 14px 28px;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.browse-button:hover {
+  background-color: #333333;
+  transform: translateY(-1px);
+}
+/* -------------------------------------------------------- */
+
+/* 리스트 스타일 */
 .wishlist-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  width: 100%; /* 너비 꽉 채우기 */
 }
 
-/* 찜한 아이템 하나하나의 스타일 */
 .wishlist-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 0;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 1.5rem 0.5rem;
+  border-bottom: 1px solid #f3f4f6;
+  background-color: transparent;
 }
 
-/* 아이템의 왼쪽 부분 (포스터 + 정보) */
+.wishlist-item:last-child {
+  border-bottom: none;
+}
+
 .item-details {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
-/* 포스터 이미지 */
 .item-poster {
   width: 60px;
   height: 90px;
   object-fit: cover;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #e5e7eb;
 }
 
-/* 제목과 플랫폼 정보 */
 .item-info {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  gap: 6px;
 }
 
 .item-title {
   font-size: 1.125rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: #111827;
 }
 
 .item-platform {
   font-size: 0.875rem;
   color: #6b7280;
+  font-weight: 500;
 }
 
-/* 삭제 버튼 */
 .delete-button {
   background: none;
   border: none;
   cursor: pointer;
-  color: #9ca3af;
+  color: #d1d5db;
   padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
 }
 
 .delete-button:hover {
+  background-color: #f9fafb;
   color: #ef4444;
 }
 
-/* 하단 추천받기 버튼 컨테이너 */
 .recommend-button-container {
-  margin-top: 2rem;
+  margin-top: 4rem;
   text-align: center;
 }
 
-/* 추천받기 버튼 */
 .recommend-button {
-  background-color: #111827;
+  background-color: #000000;
   color: white;
   font-weight: 600;
-  padding: 0.75rem 1.5rem;
+  padding: 1rem 3rem;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  font-size: 1rem;
+  transition: all 0.2s;
 }
 
 .recommend-button:hover {
-  background-color: #374151;
+  background-color: #1f2937;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
