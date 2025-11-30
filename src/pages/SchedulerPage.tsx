@@ -292,9 +292,44 @@ const SchedulerPage: React.FC = () => {
               (sum: number, plan: PlanAction) => sum + plan.programs.length,
               0
             )}
-            개의 작품을 보기 위한 구독 스케줄입니다. 예상 절약 비용: ₩{" "}
-            {scheduleData.totalCostSavings.toLocaleString()}
+            개의 작품을 보기 위한 구독 스케줄입니다.
           </p>
+
+          <div
+            style={{
+              marginTop: "12px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {isLoggedIn ? (
+              // 로그인 상태: 정상 가격 표시
+              <span style={{ fontSize: "16px", color: "#4b5563" }}>
+                예상 절약 비용:{" "}
+                <span
+                  className="cost-highlight"
+                  style={{ fontSize: "18px", marginLeft: "4px" }}
+                >
+                  ₩ {scheduleData.totalCostSavings.toLocaleString()}
+                </span>
+              </span>
+            ) : (
+              // 비회원 상태
+              <div className="hidden-cost-container">
+                <span className="cost-label">예상 절약 비용:</span>
+
+                <div
+                  className="login-trigger-button"
+                  // ▼▼▼ 수정된 부분: 클릭 시 알림창 띄우기 ▼▼▼
+                  onClick={() => alert("로그인이 필요한 서비스입니다.")}
+                  // title="..." 속성을 삭제하여 호버 시 박스가 뜨지 않도록 함
+                >
+                  <span className="blurred-price">₩ 99,999</span>
+                </div>
+              </div>
+            )}
+          </div>
         </section>
 
         {/* 타임라인 뷰 */}

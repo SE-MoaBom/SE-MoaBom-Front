@@ -278,3 +278,54 @@
   min-height: 400px;
   flex-grow: 1;
 }
+
+/* 숨겨진 비용 컨테이너 (텍스트 + 블러영역) */
+.hidden-cost-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* "예상 절약 비용" 텍스트 */
+.cost-label {
+  font-size: 16px; /* 문장 크기와 동일하게 맞춤 */
+  color: #4b5563;
+  font-weight: 700; /* 굵게 처리 */
+}
+
+/* 블러 처리된 버튼 영역 */
+.login-trigger-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+/* 마우스 올렸을 때 배경만 살짝 회색으로 변경 */
+.login-trigger-button:hover {
+  background-color: #f3f4f6;
+}
+
+/* 흐릿하게 보이는 가격 텍스트 */
+.blurred-price {
+  font-weight: 700;
+  color: #111827;
+  filter: blur(6px);
+  opacity: 0.6;
+  user-select: none;
+  font-size: 16px; /* 텍스트 크기와 비슷하게 맞춤 */
+  letter-spacing: 1px;
+}
+
+/* 로그인 했을 때 강조 텍스트 (초록색) */
+.cost-highlight {
+  font-weight: 700;
+  color: #059669;
+}
