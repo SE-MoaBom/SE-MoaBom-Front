@@ -3,11 +3,10 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #ffffff;
+  background-color: #f7f7f7; /* 수정됨: MainPage와 동일한 배경색 */
 }
 
 .scheduler-container {
-  /* Wishlist와 동일한 레이아웃 로직 적용 */
   flex-grow: 1;
   width: 100%;
   max-width: 1200px;
@@ -20,16 +19,13 @@
   flex-direction: column;
 }
 
-/* --- 공통 빈 화면/로그인/에러 스타일 (Wishlist와 100% 동일) --- */
+/* --- 공통 빈 화면/로그인/에러 스타일 --- */
 .scheduler-empty-state {
-  /* 부모의 남은 높이를 모두 차지 */
   flex-grow: 1;
-
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* 정중앙 정렬 */
-
+  justify-content: center;
   text-align: center;
   padding: 0 20px;
 }
@@ -59,7 +55,7 @@
   font-weight: 600;
   font-size: 15px;
   transition: all 0.2s ease;
-  text-decoration: none; /* Link 태그용 */
+  text-decoration: none;
   display: inline-block;
 }
 
@@ -78,14 +74,12 @@
   background-color: #f9fafb;
 }
 
-/* ------------------------------------------------ */
-
-/* 상단 요약 섹션 (데이터가 있을 때) */
+/* 상단 요약 섹션 */
 .plan-summary {
-  background-color: #f8f9fa;
+  background-color: #ffffff; /* 카드 배경은 흰색 유지 */
   border-radius: 12px;
   padding: 24px;
-  margin: 32px 0; /* 상하 여백 조정 */
+  margin: 32px 0;
   text-align: center;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -113,7 +107,7 @@
   padding-left: 12px;
 }
 
-/* 타임라인 등 나머지 스타일 유지 */
+/* 타임라인 */
 .timeline-section {
   margin-bottom: 50px;
   overflow-x: auto;
@@ -124,7 +118,7 @@
   display: grid;
   gap: 8px;
   min-width: 600px;
-  background-color: #ffffff;
+  background-color: #ffffff; /* 그리드 배경 흰색 */
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 20px;
@@ -197,7 +191,7 @@
   margin-bottom: 2px;
 }
 
-/* 리스트 뷰 (아코디언) */
+/* 리스트 뷰 */
 .list-view-section {
   margin-bottom: 60px;
 }
@@ -207,7 +201,7 @@
   border-radius: 8px;
   margin-bottom: 12px;
   overflow: hidden;
-  background-color: white;
+  background-color: white; /* 아코디언 배경 흰색 */
   transition: border-color 0.2s;
 }
 
@@ -269,7 +263,6 @@
   margin-right: 4px;
 }
 
-/* 액션 버튼 그룹 (데이터가 있을 때 하단 버튼) */
 .action-buttons {
   display: flex;
   gap: 16px;

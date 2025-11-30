@@ -31,7 +31,7 @@ const WishlistPage: React.FC = () => {
   const handleDeleteItem = async (wishlistId: number, title: string) => {
     // 1. 확인 팝업
     const confirmed = window.confirm(
-      `'${title}'을(를) 보고싶은 목록에서 삭제하시겠습니까?`
+      `'${title}'을(를) 찜 목록에서 삭제하시겠습니까?`
     );
 
     if (confirmed) {

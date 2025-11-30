@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #ffffff;
+  background-color: #f7f7f7; /* 수정됨: MainPage와 동일한 배경색 */
 }
 
 /* 찜한 리스트 컨텐츠를 담는 main 영역 */
@@ -15,7 +15,7 @@
   padding: 0 1.5rem;
   padding-bottom: 80px;
 
-  /* 수정: 내부 요소(빈 화면)가 높이를 꽉 채우도록 flex 설정 */
+  /* 내부 요소(빈 화면)가 높이를 꽉 채우도록 flex 설정 */
   display: flex;
   flex-direction: column;
 }
@@ -29,19 +29,15 @@
   color: #111827;
 }
 
-/* --- 빈 화면 스타일 (완벽한 중앙 정렬) --- */
+/* --- 빈 화면 스타일 --- */
 .wishlist-empty-state {
-  /* 수정: 부모(container)의 남은 높이를 모두 차지하게 함 */
   flex-grow: 1;
-
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* 수정: 차지한 높이 안에서 내용물을 정중앙에 배치 */
   justify-content: center;
-
   text-align: center;
-  padding: 0 20px; /* 상하 패딩 제거 (justify-content가 처리함) */
+  padding: 0 20px;
 }
 
 .wishlist-empty-state h3 {
@@ -80,7 +76,7 @@
 .wishlist-list {
   display: flex;
   flex-direction: column;
-  width: 100%; /* 너비 꽉 채우기 */
+  width: 100%;
 }
 
 .wishlist-item {
@@ -88,7 +84,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 0.5rem;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid #e5e7eb; /* 구분선 색상 약간 조정 */
   background-color: transparent;
 }
 
@@ -144,7 +140,7 @@
 }
 
 .delete-button:hover {
-  background-color: #f9fafb;
+  background-color: #e5e7eb; /* 배경색 변경 시 호버 효과 조정 */
   color: #ef4444;
 }
 
