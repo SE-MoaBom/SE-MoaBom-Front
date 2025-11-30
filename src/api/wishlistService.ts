@@ -1,5 +1,5 @@
 import apiClient from "./client";
-import { getProgramDetail } from "./programService"; // 상세 정보 조회를 위해 추가
+import { getProgramDetail } from "./programService";
 
 // 찜 목록 아이템 타입
 export interface WishlistItem {
@@ -15,15 +15,23 @@ export interface AddToWishlistRequest {
   programId: number;
 }
 
-// OTT ID -> 이름 변환 헬퍼 함수
+// --- 수정된 부분: OTT 이름을 한글로 변경 (MainPage.tsx 기준) ---
 const getOttName = (ottId: number): string => {
   const ottNames: { [key: number]: string } = {
-    1: "Netflix",
-    2: "Wavve",
-    3: "Disney+",
+    1: "넷플릭스",
+    2: "티빙",
+    3: "쿠팡플레이",
+    4: "웨이브",
+    5: "디즈니+",
+    6: "왓챠",
+    7: "라프텔",
+    8: "U+모바일tv",
+    9: "아마존 프라임",
+    10: "시네폭스",
   };
   return ottNames[ottId] || "기타";
 };
+// -----------------------------------------------------------
 
 /**
  * 찜 목록 조회 (상세 정보 병합 포함)
