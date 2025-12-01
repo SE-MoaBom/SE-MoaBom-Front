@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import ContentModal from "../components/ContentModal";
 import "../styles/mainPage.css";
-import { useNavigate } from "react-router-dom";
 import { useWishlist } from "../contexts/WishlistContext";
 import { searchPrograms, type Program } from "../api/programService";
 import BottomNavigation from "../components/BottomNavigation";
+import SearchBar from "../components/SearchBar";
 
 type ContentTab = "popular" | "upcoming" | "ending";
 
@@ -54,11 +54,6 @@ const MainPage: React.FC = () => {
     setIsModalOpen(false);
     setSelectedProgram(null);
   };
-
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<Program[]>([]);
-  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPrograms = async () => {
@@ -215,48 +210,6 @@ const MainPage: React.FC = () => {
     }
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-
-    if (query.trim()) {
-      const filtered = programs.filter((program) =>
-        program.title.toLowerCase().includes(query.toLowerCase())
-      );
-      setSearchResults(filtered.slice(0, 5));
-      setShowSearchDropdown(true);
-    } else {
-      setSearchResults([]);
-      setShowSearchDropdown(false);
-    }
-  };
-
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    }
-  };
-
-  const highlightMatch = (text: string, query: string) => {
-    if (!query.trim()) return text;
-
-    const parts = text.split(new RegExp(`(${query})`, "gi"));
-    return parts.map((part, index) =>
-      part.toLowerCase() === query.toLowerCase() ? (
-        <span key={index} style={{ color: "#3B82F6", fontWeight: 600 }}>
-          {part}
-        </span>
-      ) : (
-        part
-      )
-    );
-  };
-
-  const handleDropdownItemClick = (program: Program) => {
-    setShowSearchDropdown(false);
-    handleContentClick(program);
-  };
-
   if (loading) {
     return (
       <div className="main-page">
@@ -295,108 +248,9 @@ const MainPage: React.FC = () => {
     <div className="main-page">
       <Header />
 
-      {/* Search Section */}
       <section className="search-section">
         <div className="search-container">
-          <div className="search-input-wrapper">
-            <svg
-              className="search-icon"
-              width="24"
-              height="28"
-              viewBox="0 0 24 28"
-              fill="none"
-            >
-              <path
-                d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
-                stroke="#9CA3AF"
-                strokeWidth="2"
-              />
-              <path
-                d="M21 21L16.65 16.65"
-                stroke="#9CA3AF"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-            <input
-              type="text"
-              className="search-input"
-              placeholder="시리즈, 영화를 검색해 보세요..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              onKeyDown={handleSearchKeyDown}
-              onFocus={() => searchQuery && setShowSearchDropdown(true)}
-            />
-
-            {showSearchDropdown && searchResults.length > 0 && (
-              <div className="search-dropdown">
-                {searchResults.map((program) => {
-                  const inWishlist = isInWishlist(program.programId);
-                  return (
-                    <div
-                      key={program.programId}
-                      className="search-dropdown-item"
-                      onClick={() => handleDropdownItemClick(program)}
-                    >
-                      <div className="search-item-title">
-                        {highlightMatch(program.title, searchQuery)}
-                      </div>
-                      <button
-                        className={`search-add-button ${
-                          inWishlist ? "added" : ""
-                        }`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleWishlist(program);
-                        }}
-                      >
-                        {inWishlist ? (
-                          <>
-                            <svg
-                              width="10"
-                              height="10"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                            >
-                              <path
-                                d="M13.3332 4L5.99984 11.3333L2.6665 8"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                            <span className="search-add-button-text">
-                              추가 완료
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <svg
-                              width="10"
-                              height="10"
-                              viewBox="0 0 10 10"
-                              fill="none"
-                            >
-                              <path
-                                d="M5 2V8M2 5H8"
-                                stroke="#FFFFFF"
-                                strokeWidth="1"
-                                strokeLinecap="round"
-                              />
-                            </svg>
-                            <span className="search-add-button-text">
-                              보고 싶은 목록에 추가
-                            </span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          <SearchBar programs={programs} />
         </div>
       </section>
 

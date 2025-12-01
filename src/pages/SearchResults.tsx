@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import ContentModal from "../components/ContentModal";
+import SearchBar from "../components/SearchBar";
 import { searchPrograms, type Program } from "../api/programService";
 import { useWishlist } from "../contexts/WishlistContext";
 import "../styles/searchResults.css";
@@ -13,11 +14,36 @@ const SearchResultsPage: React.FC = () => {
   const query = searchParams.get("q") || "";
 
   const [searchResults, setSearchResults] = useState<Program[]>([]);
+  const [allPrograms, setAllPrograms] = useState<Program[]>([]);
   const [selectedContent, setSelectedContent] = useState<Program | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+
+  // 전체 프로그램 목록 로드 (SearchBar용)
+  useEffect(() => {
+    const fetchAllPrograms = async () => {
+      try {
+        const [popularRes, upcomingRes, expiringRes] = await Promise.all([
+          searchPrograms({ sort: "RANKING", size: 50 }),
+          searchPrograms({ status: "UPCOMING", size: 50 }),
+          searchPrograms({ status: "EXPIRING", size: 50 }),
+        ]);
+
+        const combined = [
+          ...popularRes.results,
+          ...upcomingRes.results,
+          ...expiringRes.results,
+        ];
+        setAllPrograms(combined);
+      } catch (error) {
+        console.error("프로그램 로딩 실패:", error);
+      }
+    };
+
+    fetchAllPrograms();
+  }, []);
 
   // 검색 실행
   useEffect(() => {
@@ -68,12 +94,11 @@ const SearchResultsPage: React.FC = () => {
     e: React.MouseEvent,
     program: Program
   ) => {
-    e.stopPropagation(); // 카드 클릭 이벤트 방지
+    e.stopPropagation();
 
     const item = wishlist.find((w) => w.programId === program.programId);
 
     if (item) {
-      // 이미 찜한 경우 - 삭제 확인
       const confirmed = window.confirm(
         `'${program.title}'을(를) 보고싶은 목록에서 삭제하시겠습니까?`
       );
@@ -82,7 +107,6 @@ const SearchResultsPage: React.FC = () => {
         await removeFromWishlist(item.wishlistId);
       }
     } else {
-      // 찜하지 않은 경우 - 추가
       await addToWishlist(
         program.programId,
         program.title,
@@ -119,6 +143,13 @@ const SearchResultsPage: React.FC = () => {
   return (
     <div className="search-results-page">
       <Header />
+
+      {/* Search Section */}
+      <section className="search-section">
+        <div className="search-container">
+          <SearchBar programs={allPrograms} />
+        </div>
+      </section>
 
       <main className="search-results-main">
         <div className="search-results-container">
