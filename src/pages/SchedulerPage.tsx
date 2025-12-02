@@ -183,7 +183,7 @@ const SchedulerPage: React.FC = () => {
         if (ottId === 0) continue;
 
         await createSubscription({
-          ottID: ottId,
+          ottId: ottId,
           startDate: plan.dateRange.start,
           endDate: plan.dateRange.end,
         });
