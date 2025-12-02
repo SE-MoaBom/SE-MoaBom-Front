@@ -170,8 +170,29 @@ const SubscribePage: React.FC = () => {
 
   // 총 월 구독료 계산
   const totalMonthlyPrice = mySubscriptions.reduce((sum, sub) => {
-    const ott = ottList.find((o) => o.ottId === sub.ottId);
-    return sum + (ott?.price || 0);
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0-11
+
+    // 이번 달 첫날과 마지막날
+    const monthStart = new Date(currentYear, currentMonth, 1);
+    const monthEnd = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
+
+    // 구독 날짜 파싱
+    const startDate = new Date(sub.startDate);
+    const endDate = sub.endDate ? new Date(sub.endDate) : null;
+
+    // 구독이 이번 달에 활성화되어 있는지 확인
+    const isActiveThisMonth =
+      startDate <= monthEnd && // 시작일이 이번 달 이전 또는 이번 달
+      (!endDate || endDate >= monthStart); // 종료일이 없거나 이번 달 이후
+
+    if (isActiveThisMonth) {
+      const ott = ottList.find((o) => o.ottId === sub.ottId);
+      return sum + (ott?.price || 0);
+    }
+
+    return sum;
   }, 0);
 
   return (
