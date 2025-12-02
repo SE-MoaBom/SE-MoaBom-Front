@@ -94,7 +94,7 @@ const SubscribePage: React.FC = () => {
 
     try {
       await createSubscription({
-        ottID: newSubscription.ottID,
+        ottId: newSubscription.ottID,
         startDate: newSubscription.startDate,
         endDate: newSubscription.endDate || null,
       });
@@ -161,7 +161,7 @@ const SubscribePage: React.FC = () => {
 
   // 수정 모드 시작
   const startEditing = (subscription: Subscription) => {
-    setEditingId(subscription.subscribeID);
+    setEditingId(subscription.subscribeId);
     setEditData({
       startDate: subscription.startDate,
       endDate: subscription.endDate || "",
@@ -170,7 +170,7 @@ const SubscribePage: React.FC = () => {
 
   // 총 월 구독료 계산
   const totalMonthlyPrice = mySubscriptions.reduce((sum, sub) => {
-    const ott = ottList.find((o) => o.ottId === sub.ottID);
+    const ott = ottList.find((o) => o.ottId === sub.ottId);
     return sum + (ott?.price || 0);
   }, 0);
 
@@ -209,13 +209,13 @@ const SubscribePage: React.FC = () => {
           <div className="subscription-list">
             {mySubscriptions.map((subscription) => {
               const ottInfo = ottList.find(
-                (o) => o.ottId === subscription.ottID
+                (o) => o.ottId === subscription.ottId
               );
-              const isEditing = editingId === subscription.subscribeID;
+              const isEditing = editingId === subscription.subscribeId;
 
               return (
                 <div
-                  key={subscription.subscribeID}
+                  key={subscription.subscribeId}
                   className="subscription-card"
                 >
                   <div className="subscription-info">
@@ -262,7 +262,7 @@ const SubscribePage: React.FC = () => {
                         <button
                           className="save-btn"
                           onClick={() =>
-                            handleEditSubscription(subscription.subscribeID)
+                            handleEditSubscription(subscription.subscribeId)
                           }
                           disabled={isLoading}
                         >
@@ -294,7 +294,7 @@ const SubscribePage: React.FC = () => {
                         <button
                           className="delete-btn"
                           onClick={() =>
-                            handleDeleteSubscription(subscription.subscribeID)
+                            handleDeleteSubscription(subscription.subscribeId)
                           }
                           disabled={isLoading}
                         >
