@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
+// [추가] AuthContext import
+import { useAuth } from "../contexts/AuthContext";
 import { getOTTList, type OTT } from "../api/ottService";
 import {
   getSubscriptions,
@@ -18,8 +20,17 @@ interface NewSubscription {
   endDate: string;
 }
 
+// [추가] 날짜 포맷 변경 헬퍼 함수 (YYYY-MM-DD -> YYYY.MM.DD)
+const formatDate = (dateString: string) => {
+  if (!dateString) return "";
+  return dateString.replace(/-/g, ".");
+};
+
 const SubscribePage: React.FC = () => {
   const navigate = useNavigate();
+  // [추가] 로그인 상태 확인
+  const { isLoggedIn, isLoading: authLoading } = useAuth();
+
   const [ottList, setOttList] = useState<OTT[]>([]);
   const [mySubscriptions, setMySubscriptions] = useState<Subscription[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -39,11 +50,30 @@ const SubscribePage: React.FC = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // [추가] 알림 중복 방지를 위한 ref
+  const hasAlerted = useRef(false);
+
+  // [추가] 비회원 접근 제한 로직: 로그인하지 않았으면 알림 후 이동
+  useEffect(() => {
+    // 로딩 완료 후, 로그인이 안 되어 있다면
+    if (!authLoading && !isLoggedIn) {
+      // 이미 알림을 띄웠는지 확인 (중복 방지)
+      if (!hasAlerted.current) {
+        hasAlerted.current = true; // 알림 상태 true로 변경
+        alert("로그인이 필요한 서비스입니다.");
+        navigate("/login");
+      }
+    }
+  }, [authLoading, isLoggedIn, navigate]);
+
   // 내 구독 정보 불러오기
   useEffect(() => {
-    fetchOttList();
-    fetchMySubscriptions();
-  }, []);
+    // [수정] 로그인 상태일 때만 데이터 호출
+    if (!authLoading && isLoggedIn) {
+      fetchOttList();
+      fetchMySubscriptions();
+    }
+  }, [authLoading, isLoggedIn]);
 
   const fetchOttList = async () => {
     try {
@@ -60,8 +90,8 @@ const SubscribePage: React.FC = () => {
       setMySubscriptions(data);
     } catch (err: any) {
       if (err.response?.status === 401) {
-        // 로그인 필요
-        navigate("/login");
+        // [수정] 위쪽 useEffect에서 처리하므로 여기서는 콘솔만 찍거나 무시
+        console.log("인증 필요");
       } else {
         console.error("구독 정보를 불러오는데 실패했습니다.", err);
       }
@@ -78,16 +108,6 @@ const SubscribePage: React.FC = () => {
       setError("구독 시작일을 입력해주세요.");
       return;
     }
-
-    // 생각해보니 OTT 중복 구독 가능성...있을지도
-    // // 이미 구독 중인 OTT인지 확인
-    // const alreadySubscribed = mySubscriptions.find(
-    //   (sub) => sub.ottID === newSubscription.ottID
-    // );
-    // if (alreadySubscribed) {
-    //   setError("이미 구독 중인 OTT입니다.");
-    //   return;
-    // }
 
     setIsLoading(true);
     setError("");
@@ -195,6 +215,27 @@ const SubscribePage: React.FC = () => {
     return sum;
   }, 0);
 
+  // [추가] 인증 로딩 중이거나 비회원(리다이렉트 대기)일 때 로딩 화면 표시
+  if (authLoading || !isLoggedIn) {
+    return (
+      <div className="subscribe-page">
+        <Header />
+        <main
+          className="subscribe-container"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "60vh",
+          }}
+        >
+          <div>잠시만 기다려주세요...</div>
+        </main>
+      </div>
+    );
+  }
+
+  // 로그인 회원일 경우 정상 렌더링
   return (
     <div className="subscribe-page">
       <Header />
@@ -299,10 +340,11 @@ const SubscribePage: React.FC = () => {
                     </div>
                   ) : (
                     <>
+                      {/* [수정] 날짜 표시 부분에 formatDate 함수 적용 */}
                       <div className="subscription-dates">
-                        <span>시작: {subscription.startDate}</span>
+                        <span>시작: {formatDate(subscription.startDate)}</span>
                         {subscription.endDate && (
-                          <span>종료: {subscription.endDate}</span>
+                          <span>종료: {formatDate(subscription.endDate)}</span>
                         )}
                       </div>
                       <div className="subscription-actions">

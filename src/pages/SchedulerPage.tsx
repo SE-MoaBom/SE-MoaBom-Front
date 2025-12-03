@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { useAuth } from "../contexts/AuthContext";
@@ -67,71 +67,32 @@ const SchedulerPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
 
-  const generateGuestSchedule = (): ScheduleResponse => {
-    if (!wishlist || wishlist.length === 0) {
-      return { totalCostSavings: 0, actions: [] };
-    }
+  // [수정됨] 알림 중복 방지를 위한 ref 추가
+  const hasAlerted = useRef(false);
 
-    const ottGroups: { [key: string]: any[] } = {};
-
-    wishlist.forEach((item) => {
-      const primaryOtt =
-        item.ottList && item.ottList.length > 0 ? item.ottList[0] : "기타";
-
-      if (!ottGroups[primaryOtt]) {
-        ottGroups[primaryOtt] = [];
+  // [수정됨] 비회원 접근 제한 로직: 로그인하지 않았으면 알림 후 이동
+  useEffect(() => {
+    // 로딩 완료 후, 로그인이 안 되어 있다면
+    if (!authLoading && !isLoggedIn) {
+      // 이미 알림을 띄웠는지 확인 (중복 방지)
+      if (!hasAlerted.current) {
+        hasAlerted.current = true; // 알림 상태 true로 변경
+        alert("로그인이 필요한 서비스입니다.");
+        navigate("/login");
       }
+    }
+  }, [authLoading, isLoggedIn, navigate]);
 
-      ottGroups[primaryOtt].push({
-        programId: item.programId,
-        title: item.title,
-        thumbnailUrl: item.thumbnailUrl,
-        availability: [],
-        description: "",
-        genre: "",
-        backdropUrl: "",
-        ranking: null,
-        runningTime: null,
-        status: null,
-        wishlistId: item.wishlistId,
-      });
-    });
-
-    const actions: PlanAction[] = Object.keys(ottGroups).map((ottName) => {
-      const today = new Date();
-      const nextMonth = new Date();
-      nextMonth.setMonth(today.getMonth() + 1);
-
-      return {
-        ottName: ottName,
-        dateRange: {
-          start: today.toISOString().split("T")[0],
-          end: nextMonth.toISOString().split("T")[0],
-        },
-        programs: ottGroups[ottName],
-      };
-    });
-
-    return {
-      totalCostSavings: 0,
-      actions: actions,
-    };
-  };
-
+  // 서버에서 스케줄 데이터 가져오기
   const fetchSchedule = async () => {
+    // 비회원은 데이터를 가져오지 않음
+    if (!isLoggedIn) return;
+
     setLoading(true);
     setError(null);
 
     try {
-      let responseData: ScheduleResponse;
-
-      if (isLoggedIn) {
-        responseData = await getRecommendedSchedule();
-      } else {
-        console.log("비회원 접속: 로컬 데이터로 구독 스케줄 생성");
-        responseData = generateGuestSchedule();
-      }
-
+      const responseData = await getRecommendedSchedule();
       setScheduleData(responseData);
 
       if (responseData.actions && responseData.actions.length > 0) {
@@ -139,16 +100,14 @@ const SchedulerPage: React.FC = () => {
       }
     } catch (err: any) {
       console.error("구독 스케줄 데이터 로딩 실패:", err);
-      if (isLoggedIn) {
-        if (err.response) {
-          setError(
-            err.response.data?.error ||
-              err.response.data?.message ||
-              `구독 스케줄을 불러오지 못했습니다. (Code: ${err.response.status})`
-          );
-        } else {
-          setError(err.message || "서버와 연결할 수 없습니다.");
-        }
+      if (err.response) {
+        setError(
+          err.response.data?.error ||
+            err.response.data?.message ||
+            `구독 스케줄을 불러오지 못했습니다. (Code: ${err.response.status})`
+        );
+      } else {
+        setError(err.message || "서버와 연결할 수 없습니다.");
       }
     } finally {
       setLoading(false);
@@ -156,21 +115,24 @@ const SchedulerPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!authLoading) {
+    // 인증 로딩이 끝났고, 로그인 상태일 때만 데이터 fetch
+    if (!authLoading && isLoggedIn) {
       fetchSchedule();
     }
   }, [authLoading, isLoggedIn, wishlist]);
 
   const handleApplySchedule = async () => {
     if (!isLoggedIn) {
+      // 여기는 혹시 모를 방어 코드
       alert("로그인이 필요한 서비스입니다.");
+      navigate("/login");
       return;
     }
 
     if (!scheduleData || !scheduleData.actions.length) return;
 
     const confirmed = window.confirm(
-      "이 스케줄을 나의 구독에 저장하시겠습니까?"
+      "이 스케줄을 나의 구독에 반영하시겠습니까?"
     );
 
     if (!confirmed) return;
@@ -188,7 +150,7 @@ const SchedulerPage: React.FC = () => {
           endDate: plan.dateRange.end,
         });
       }
-      alert("성공적으로 반영되었습니다! 나의 구독 페이지로 이동합니다.");
+      alert("성공적으로 반영되었습니다!");
       navigate("/subscribe");
     } catch (err) {
       console.error("구독 스케줄 반영 실패:", err);
@@ -207,7 +169,8 @@ const SchedulerPage: React.FC = () => {
     return index !== -1 ? index + 2 : 2;
   };
 
-  if (authLoading || loading) {
+  // 1. 인증 정보 로딩 중이거나, 비회원 리다이렉트 대기 중일 때
+  if (authLoading || !isLoggedIn) {
     return (
       <div className="page-wrapper">
         <Header />
@@ -220,6 +183,21 @@ const SchedulerPage: React.FC = () => {
     );
   }
 
+  // 2. 회원인데 데이터 로딩 중일 때
+  if (loading) {
+    return (
+      <div className="page-wrapper">
+        <Header />
+        <main className="scheduler-container">
+          <div className="loading-container">
+            <div className="loading-spinner">구독 스케줄 생성 중...</div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // 3. 에러 발생 시
   if (error) {
     return (
       <div className="page-wrapper">
@@ -246,6 +224,7 @@ const SchedulerPage: React.FC = () => {
     );
   }
 
+  // 4. 데이터가 없을 때
   if (
     !scheduleData ||
     !scheduleData.actions ||
@@ -259,10 +238,8 @@ const SchedulerPage: React.FC = () => {
             <h3>추천할 구독 스케줄이 없습니다.</h3>
             <p>
               찜 목록이 충분하지 않을 수 있습니다.
-              {!isLoggedIn && <br />}
-              {!isLoggedIn && (
-                <span>(찜 목록을 기반으로 구독 스케줄이 생성됩니다.)</span>
-              )}
+              <br />
+              <span>(찜 목록을 기반으로 구독 스케줄이 생성됩니다.)</span>
             </p>
             <Link to="/" className="scheduler-action-button">
               콘텐츠 둘러보기
@@ -278,6 +255,7 @@ const SchedulerPage: React.FC = () => {
     ...new Set(scheduleData.actions.map((plan: PlanAction) => plan.ottName)),
   ];
 
+  // 5. 정상 렌더링 (로그인 회원)
   return (
     <div className="page-wrapper">
       <Header />
@@ -301,31 +279,15 @@ const SchedulerPage: React.FC = () => {
               alignItems: "center",
             }}
           >
-            {isLoggedIn ? (
-              // 로그인 상태: 정상 가격 표시
-              <span style={{ fontSize: "16px", color: "#4b5563" }}>
-                예상 절약 비용:{" "}
-                <span
-                  className="cost-highlight"
-                  style={{ fontSize: "18px", marginLeft: "4px" }}
-                >
-                  ₩ {scheduleData.totalCostSavings.toLocaleString()}
-                </span>
+            <span style={{ fontSize: "16px", color: "#4b5563" }}>
+              예상 절약 비용:{" "}
+              <span
+                className="cost-highlight"
+                style={{ fontSize: "18px", marginLeft: "4px" }}
+              >
+                ₩ {scheduleData.totalCostSavings.toLocaleString()}
               </span>
-            ) : (
-              // 비회원 상태
-              <div className="hidden-cost-container">
-                <span className="cost-label">예상 절약 비용:</span>
-
-                <div
-                  className="login-trigger-button"
-                  // 클릭 시 알림창 띄우기
-                  onClick={() => alert("로그인이 필요한 서비스입니다.")}
-                >
-                  <span className="blurred-price">₩ 99,999</span>
-                </div>
-              </div>
-            )}
+            </span>
           </div>
         </section>
 
@@ -370,7 +332,6 @@ const SchedulerPage: React.FC = () => {
               >
                 <div className="plan-block-title">{plan.ottName} 구독</div>
                 <div className="plan-block-period">
-                  {/* 날짜 포맷 변경 적용 */}
                   {formatDate(plan.dateRange.start)} ~{" "}
                   {formatDate(plan.dateRange.end)}
                 </div>
@@ -406,7 +367,6 @@ const SchedulerPage: React.FC = () => {
               >
                 <p>
                   <strong>구독 기간:</strong>
-                  {/* 날짜 포맷 변경 적용 */}
                   {formatDate(plan.dateRange.start)} ~{" "}
                   {formatDate(plan.dateRange.end)}
                 </p>
