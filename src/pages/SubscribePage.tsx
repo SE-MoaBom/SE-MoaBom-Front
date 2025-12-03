@@ -264,8 +264,7 @@ const SubscribePage: React.FC = () => {
         {/* 구독 목록 */}
         {mySubscriptions.length === 0 ? (
           <div className="empty-state">
-            <p>구독 중인 OTT가 없습니다.</p>
-            <p>구독을 추가해보세요!</p>
+            <p>구독 중인 OTT가 없습니다. 구독을 추가해보세요!</p>
           </div>
         ) : (
           <div className="subscription-list">
