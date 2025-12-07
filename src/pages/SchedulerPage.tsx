@@ -386,6 +386,12 @@ const SchedulerPage: React.FC = () => {
           >
             나의 구독에 이 스케줄 반영하기
           </button>
+          <button
+            className="scheduler-action-button secondary"
+            onClick={fetchSchedule}
+          >
+            다시 계산하기
+          </button>
         </section>
       </main>
       <BottomNavigation />
